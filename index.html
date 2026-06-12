@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Park Lane × Gastro Ultima — Коммерческое предложение</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prata&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============ base (mobile-first) ============ */
+:root{
+  --noir:#0A0A0C;
+  --ink-2:#16131A;
+  --gilt:#CBA45E;
+  --gilt-soft:#E6CE9A;
+  --bordeaux:#5A171F;
+  --bone:#ECE6DB;
+  --ash:#9A9286;
+  --ash-dim:#6E685F;
+  --hair:rgba(203,164,94,0.22);
+  --bar:#050506;
+  --maxw:1180px;
+  --bar-h:36px;
+  --pad:clamp(18px,5vw,72px);
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --font-display:'Prata','Playfair Display',Georgia,serif;
+  --font-body:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--noir);
+  color:var(--bone);
+  font-family:var(--font-body);
+  font-weight:300;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+::selection{background:var(--gilt);color:var(--noir)}
+a{color:inherit}
+h1,h2,h3{font-family:var(--font-display);font-weight:400;line-height:1.04;letter-spacing:.01em}
+.mono{font-family:var(--font-mono)}
+
+/* ============ кинолента: рамка, зерно, склейка ============ */
+.bar{position:fixed;left:0;right:0;height:var(--bar-h);background:var(--bar);z-index:40;display:flex;align-items:center;padding:0 clamp(14px,3vw,34px);pointer-events:none}
+.bar-top{top:0;border-bottom:1px solid rgba(203,164,94,.08)}
+.bar-bottom{bottom:0;border-top:1px solid rgba(203,164,94,.08);gap:14px}
+.hud-txt{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.22em;color:var(--ash-dim);text-transform:uppercase;white-space:nowrap}
+.bar-top .hud-r{margin-left:auto;color:var(--gilt)}
+.reel{flex:1;height:1px;background:rgba(203,164,94,.14);position:relative;overflow:hidden}
+.reel-fill{position:absolute;inset:0;background:var(--gilt);transform:scaleX(0);transform-origin:left}
+.bar-bottom .hud-tc{margin-left:auto;color:var(--gilt)}
+
+.grain{position:fixed;inset:0;z-index:30;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+@media (pointer:coarse){ .grain{display:none} }
+.vignette{position:fixed;inset:0;z-index:25;pointer-events:none;background:radial-gradient(125% 95% at 50% 50%,transparent 58%,rgba(0,0,0,.5) 100%)}
+
+/* монтажная склейка — провал в чёрное между главами */
+.cutfx{position:fixed;inset:0;background:#000;z-index:35;pointer-events:none;opacity:0}
+
+/* ============ киносчётчик-заставка ============ */
+.leader{position:fixed;inset:0;background:var(--noir);z-index:90;display:grid;place-items:center;transition:opacity .9s var(--ease),visibility .9s}
+.leader-ring{position:relative;width:150px;height:150px;border:1px solid var(--hair);border-radius:50%;display:grid;place-items:center}
+.leader-ring::before{content:"";position:absolute;inset:-18px;border:1px solid rgba(203,164,94,.1);border-radius:50%}
+.leader-num{font-family:var(--font-display);font-size:64px;color:var(--bone)}
+.leader-sweep{position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(203,164,94,.16) 0deg,transparent 0deg)}
+.leader-cap{position:absolute;bottom:18vh;left:0;right:0;text-align:center;font-family:var(--font-mono);font-size:10px;letter-spacing:.5em;text-indent:.5em;color:var(--gilt);text-transform:uppercase}
+body.loaded .leader{opacity:0;visibility:hidden}
+
+/* ============ кино-кадр (letterbox 16:9 под широкоформатное видео) ============ */
+.film{position:relative;width:100%;background:#000;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.film-screen{position:relative;aspect-ratio:16/9;overflow:hidden;background:
+  radial-gradient(90% 90% at 50% 40%,rgba(203,164,94,.10),transparent 65%),#000}
+.film-screen video,.film-screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.film-slot{position:absolute;inset:0;display:grid;place-items:center}
+.film-slot span{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--ash-dim);border:1px dashed rgba(203,164,94,.28);padding:9px 16px}
+.film.has-media .film-slot{display:none}
+.film-hud{position:absolute;left:0;right:0;display:flex;justify-content:space-between;padding:8px 12px;font-family:var(--font-mono);font-size:9px;letter-spacing:.18em;color:rgba(236,230,219,.55);text-transform:uppercase;pointer-events:none}
+.film-hud.t{top:0}
+.film-hud.b{bottom:0}
+.film-hud .rec{color:#C0392B}
+.film-hud .rec::before{content:"●";margin-right:6px;animation:blink 1.6s steps(2) infinite}
+@keyframes blink{50%{opacity:.15}}
+.film .fc{position:absolute;width:14px;height:14px;border-color:rgba(236,230,219,.5);z-index:2}
+.film .fc1{top:8px;left:8px;border-top:1px solid;border-left:1px solid}
+.film .fc2{top:8px;right:8px;border-top:1px solid;border-right:1px solid}
+.film .fc3{bottom:8px;left:8px;border-bottom:1px solid;border-left:1px solid}
+.film .fc4{bottom:8px;right:8px;border-bottom:1px solid;border-right:1px solid}
+
+/* ============ общие блоки ============ */
+main{position:relative;z-index:1}
+section{position:relative;padding:calc(var(--bar-h) + 8svh) var(--pad)}
+.full{min-height:100svh;display:flex;flex-direction:column;justify-content:center}
+.wrap{width:100%;max-width:var(--maxw);margin:0 auto}
+.eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:.34em;color:var(--gilt);
+  text-transform:uppercase;display:inline-flex;align-items:center;gap:12px}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--gilt);opacity:.7;flex:none}
+.lede{color:var(--ash);max-width:46ch;font-size:clamp(.98rem,1.5vw,1.18rem);line-height:1.7}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity 1s var(--ease) var(--d,0s),transform 1s var(--ease) var(--d,0s)}
+.reveal.in{opacity:1;transform:none}
+.note-line{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--ash-dim);text-transform:uppercase;margin-top:clamp(24px,4vh,40px);line-height:2}
+
+/* бегущая строка-лента */
+.strip{position:absolute;left:0;right:0;overflow:hidden;pointer-events:none;white-space:nowrap}
+.strip i{display:inline-block;font-style:normal;font-family:var(--font-display);
+  font-size:clamp(4.6rem,17vw,12rem);line-height:1;color:transparent;
+  -webkit-text-stroke:1px rgba(203,164,94,.25);letter-spacing:.04em;will-change:transform}
+
+/* ============ 01 HERO ============ */
+.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;overflow:hidden;padding-left:0;padding-right:0}
+.h-presents{font-family:var(--font-mono);font-size:10px;letter-spacing:.5em;text-indent:.5em;color:var(--gilt);text-transform:uppercase;margin-bottom:clamp(22px,4svh,40px)}
+.h-title{will-change:transform,opacity;padding:0 var(--pad)}
+.h-title h1{display:flex;flex-direction:column;align-items:center;font-size:clamp(4.6rem,23vw,12.5rem);line-height:.94}
+.h-title .w{display:block}
+.h-title .ch{display:inline-block}
+body.loaded .h-title .ch{animation:chIn 1s var(--ease) both;animation-delay:calc(.4s + var(--i)*.05s)}
+@keyframes chIn{from{opacity:0;transform:translateY(.35em) rotate(2deg)}}
+.h-x{font-family:var(--font-mono);color:var(--gilt);font-size:clamp(.72rem,2.4vw,1rem);letter-spacing:.42em;text-transform:uppercase;margin:clamp(14px,2.6svh,26px) 0}
+.h-second{font-family:var(--font-display);font-size:clamp(1.6rem,8vw,4.2rem);letter-spacing:.06em}
+.h-film{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);will-change:transform,opacity;opacity:0;pointer-events:none}
+.h-caption{position:absolute;left:0;right:0;text-align:center;bottom:max(-15svh,-72px);font-family:var(--font-mono);font-size:10px;letter-spacing:.3em;color:var(--ash);text-transform:uppercase}
+/* без GSAP / с reduced-motion hero-кадр показывается статично под титулом */
+body.no-cine .h-film{position:static;opacity:1;transform:none;margin-top:34px;pointer-events:auto}
+body.no-cine .h-caption{position:static;margin-top:12px}
+body.no-cine .hero{justify-content:flex-start;padding-top:calc(var(--bar-h) + 10svh);padding-bottom:14svh}
+.h-sub{margin-top:clamp(22px,4svh,44px);color:var(--ash);max-width:40ch;font-size:clamp(.95rem,3.8vw,1.15rem);padding:0 var(--pad)}
+.scrollcue{position:absolute;bottom:calc(var(--bar-h) + 22px);left:50%;transform:translateX(-50%);
+  font-family:var(--font-mono);font-size:9.5px;letter-spacing:.3em;color:var(--ash-dim);text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:10px}
+.scrollcue i{display:block;width:1px;height:34px;background:linear-gradient(var(--gilt),transparent);animation:cue 2.4s var(--ease) infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}40%{transform:scaleY(1);transform-origin:top}60%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ============ 02 ШЕФ: штампы ============ */
+.stamps{min-height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.stamps .strip{top:14svh}
+.st-list{display:flex;flex-direction:column;gap:clamp(10px,2.2svh,22px);position:relative;z-index:2}
+.st{will-change:transform,opacity}
+.st .k{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.3em;color:var(--gilt);text-transform:uppercase;display:block;margin-bottom:4px}
+.st .t{font-family:var(--font-display);font-size:clamp(1.75rem,8.6vw,4.6rem);line-height:1.06;color:var(--bone)}
+.st .t em{font-style:normal;color:var(--gilt)}
+
+/* ============ 03 ШЕФ: досье ============ */
+.chef .wrap{display:flex;flex-direction:column;gap:30px}
+.portrait{position:relative;aspect-ratio:3/4;max-width:330px;width:100%;border:1px solid var(--hair);background:
+  radial-gradient(80% 60% at 50% 28%,rgba(203,164,94,.16),transparent 70%),linear-gradient(180deg,var(--ink-2),var(--noir));
+  display:flex;align-items:flex-end;justify-content:center;padding:18px;overflow:hidden;will-change:clip-path}
+.portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.portrait .slot{background:rgba(10,10,12,.6);font-family:var(--font-mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ash-dim);border:1px dashed rgba(203,164,94,.28);padding:9px 16px}
+.portrait.has-photo .slot{display:none}
+.portrait .corner{position:absolute;width:18px;height:18px;border-color:var(--gilt);z-index:2}
+.portrait .tl{top:12px;left:12px;border-top:1px solid;border-left:1px solid}
+.portrait .br{bottom:12px;right:12px;border-bottom:1px solid;border-right:1px solid}
+.chef h2{font-size:clamp(2.2rem,9vw,4.6rem);margin:16px 0 6px}
+.chef .role{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.24em;color:var(--gilt);text-transform:uppercase;margin-bottom:20px}
+.chef p{color:var(--ash);max-width:48ch;margin-bottom:13px;font-size:clamp(.93rem,1.4vw,1.06rem)}
+.spec{margin-top:24px;border-top:1px solid var(--hair)}
+.spec-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:baseline;padding:15px 0;border-bottom:1px solid var(--hair)}
+.spec-row .k{font-size:.95rem;color:var(--bone)}
+.spec-row .k small{display:block;color:var(--ash-dim);font-size:.8rem;margin-top:3px}
+.spec-row .v{font-family:var(--font-mono);color:var(--gilt);font-size:clamp(.88rem,1.4vw,1.05rem);white-space:nowrap;text-align:right}
+.spec-foot{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;color:var(--ash-dim);text-transform:uppercase;margin-top:14px}
+
+/* ============ кино-интерлюдии ============ */
+.interlude{padding:clamp(40px,8svh,90px) 0;display:flex;flex-direction:column;justify-content:center;min-height:72svh}
+.interlude .icap{padding:0 var(--pad);text-align:center;margin-top:18px;font-family:var(--font-mono);font-size:10px;letter-spacing:.3em;color:var(--ash);text-transform:uppercase}
+
+/* ============ 04 ГАСТРОУЖИНЫ: горизонтальная плёнка ============ */
+.dinner{overflow:hidden;padding-left:0;padding-right:0}
+.dinner .head{padding:0 var(--pad);margin-bottom:clamp(26px,5svh,56px)}
+.dinner h2{font-size:clamp(2.3rem,10vw,4.6rem);margin:16px 0 12px}
+.dn-track{display:flex;gap:clamp(14px,2.4vw,28px);padding:0 var(--pad);width:max-content;will-change:transform}
+.dn-card{width:min(78vw,420px);flex:none;border:1px solid var(--hair);padding:clamp(20px,5vw,32px);
+  background:linear-gradient(180deg,rgba(22,19,26,.6),rgba(10,10,12,.25));display:flex;flex-direction:column;min-height:300px}
+.dn-card .no{font-family:var(--font-mono);font-size:.8rem;color:var(--gilt);letter-spacing:.1em;margin-bottom:14px}
+.dn-card h3{font-size:clamp(1.4rem,6vw,1.9rem);margin-bottom:14px}
+.dn-card p{color:var(--ash);font-size:.93rem;line-height:1.6}
+.dn-card .deliver{margin-top:auto;padding-top:14px;border-top:1px solid var(--hair);font-family:var(--font-mono);
+  font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash-dim)}
+.dn-card .deliver b{color:var(--bone);font-weight:500}
+.dinner .note-line{padding:0 var(--pad)}
+
+/* ============ 05 УСЛУГИ: титры ============ */
+.services .head{margin-bottom:clamp(30px,6svh,64px)}
+.services h2{font-size:clamp(2.3rem,10vw,4.2rem);margin:16px 0 12px}
+.cred{padding:clamp(12px,2svh,20px) 0;border-bottom:1px solid rgba(203,164,94,.12);
+  opacity:.3;transform:translateX(0) scale(.985);transform-origin:left center;
+  transition:opacity .45s var(--ease),transform .45s var(--ease)}
+.cred .row{display:flex;align-items:baseline;gap:14px}
+.cred .no{font-family:var(--font-mono);font-size:.78rem;color:var(--gilt);letter-spacing:.08em;flex:none}
+.cred .name{font-family:var(--font-display);font-size:clamp(1.35rem,6.4vw,2.4rem);line-height:1.15;color:var(--bone)}
+.cred .desc{color:var(--ash);font-size:clamp(.88rem,3.4vw,1rem);line-height:1.55;padding-left:34px;
+  max-height:0;opacity:0;overflow:hidden;transition:max-height .5s var(--ease),opacity .5s var(--ease),margin .5s var(--ease)}
+.cred.on{opacity:1;transform:none}
+.cred.on .desc{max-height:9em;opacity:1;margin-top:8px}
+
+/* ============ 06 GASTRO ULTIMA: колода карт ============ */
+.gu .head{margin-bottom:clamp(26px,5svh,56px)}
+.gu h2{font-size:clamp(2.3rem,10vw,4.2rem);margin:16px 0 12px}
+.total{font-family:var(--font-mono);color:var(--gilt);font-size:clamp(.9rem,1.4vw,1.05rem);letter-spacing:.06em;margin-top:12px}
+.stack{display:flex;flex-direction:column;gap:18px}
+.stack .card{position:sticky;top:calc(var(--bar-h) + 14px + var(--k)*16px);
+  border:1px solid var(--hair);padding:clamp(20px,5vw,32px);min-height:74svh;
+  background:linear-gradient(180deg,#16131A,#0C0B0E 70%);display:flex;flex-direction:column;
+  box-shadow:0 -18px 40px rgba(0,0,0,.45)}
+.card .price{font-family:var(--font-mono);font-size:clamp(1.05rem,5vw,1.3rem);color:var(--gilt);letter-spacing:.04em}
+.card h3{font-size:clamp(1.5rem,7vw,2.1rem);margin:12px 0 18px}
+.card ul{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+.card li{position:relative;padding-left:18px;color:var(--ash);font-size:clamp(.92rem,3.6vw,1rem);line-height:1.55}
+.card li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;background:var(--gilt);border-radius:50%;opacity:.7}
+.card .deliver{margin-top:auto;padding-top:14px;border-top:1px solid var(--hair);font-family:var(--font-mono);
+  font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash-dim)}
+.card .deliver b{color:var(--bone);font-weight:500}
+
+/* ============ 07 СТОИМОСТЬ: счётчики ============ */
+.invest{min-height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.inv-screens{position:relative;min-height:46svh}
+.inv-screen{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;will-change:transform,opacity}
+.inv-screen .lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gilt);margin-bottom:16px}
+.inv-screen .num{font-family:var(--font-display);font-size:clamp(3rem,15vw,7.5rem);line-height:1;color:var(--bone);white-space:nowrap}
+.inv-screen .num .cur{font-family:var(--font-mono);font-size:clamp(1.1rem,5vw,1.8rem);color:var(--gilt);margin-left:10px}
+.inv-screen .meta{color:var(--ash);margin-top:18px;font-size:clamp(.92rem,3.6vw,1rem);max-width:34ch}
+.inv-foot{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--ash-dim);text-transform:uppercase;line-height:2;margin-top:10svh}
+
+/* ============ 08 ЭТАПЫ ============ */
+.road h2{font-size:clamp(2.3rem,10vw,4.2rem);margin:16px 0}
+.road .head{margin-bottom:clamp(26px,5svh,56px)}
+.timeline{position:relative;padding-left:26px}
+.tl-line{position:absolute;left:0;top:6px;bottom:6px;width:1px;background:rgba(203,164,94,.18)}
+.tl-fill{position:absolute;left:0;top:6px;bottom:6px;width:1px;background:var(--gilt);transform:scaleY(0);transform-origin:top}
+.phase{padding-bottom:clamp(30px,5svh,52px);position:relative}
+.phase::before{content:"";position:absolute;left:-30px;top:8px;width:9px;height:9px;background:var(--noir);border:1px solid var(--gilt);border-radius:50%}
+.phase .ph-no{font-family:var(--font-mono);font-size:10px;letter-spacing:.24em;color:var(--gilt);text-transform:uppercase;margin-bottom:8px}
+.phase h3{font-size:clamp(1.4rem,6.4vw,1.85rem);margin-bottom:14px}
+.phase ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.phase li{color:var(--ash);font-size:clamp(.9rem,3.6vw,.95rem);padding-left:16px;position:relative;line-height:1.5}
+.phase li::before{content:"—";position:absolute;left:0;color:var(--gilt);opacity:.7}
+
+/* ============ 09 ФИНАЛ ============ */
+.finale{padding-left:0;padding-right:0;text-align:center;min-height:100svh;display:flex;flex-direction:column;justify-content:center}
+.finale .fin-inner{padding:0 var(--pad);display:flex;flex-direction:column;align-items:center}
+.finale h2{font-size:clamp(2.4rem,11vw,5.6rem);max-width:18ch;margin:24px 0 22px}
+.finale .sub{color:var(--ash);max-width:42ch;margin-bottom:clamp(26px,5svh,48px);font-size:clamp(.95rem,3.8vw,1.12rem)}
+.cta{display:inline-flex;align-items:center;gap:14px;font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--noir);background:var(--gilt);padding:18px 34px;border:1px solid var(--gilt);
+  text-decoration:none;transition:background .4s var(--ease),color .4s var(--ease)}
+.cta:hover{background:transparent;color:var(--gilt)}
+.contacts{margin-top:clamp(28px,5svh,56px);display:flex;flex-wrap:wrap;gap:clamp(18px,4vw,40px);justify-content:center}
+.contacts .c{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash-dim)}
+.contacts .c a{display:block;color:var(--bone);font-size:.95rem;letter-spacing:.04em;margin-top:6px;font-weight:500;text-transform:none;text-decoration:none}
+.contacts .c a:hover{color:var(--gilt)}
+.finale .film{margin-top:clamp(34px,7svh,70px)}
+
+footer{position:relative;z-index:1;background:var(--noir);padding:clamp(26px,5svh,54px) var(--pad) calc(var(--bar-h) + 24px);border-top:1px solid var(--hair);text-align:center}
+footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ash-dim)}
+
+/* ============ desktop ============ */
+@media (min-width:880px){
+  :root{--bar-h:44px}
+  .h-title h1{flex-direction:row;gap:.35em}
+  .chef .wrap{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(34px,5vw,72px);align-items:center}
+  .portrait{max-width:none}
+  .interlude .film,.finale .film,.h-film .film{width:min(86vw,1100px);margin-left:auto;margin-right:auto;border:1px solid var(--hair)}
+  .stack{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(18px,2.4vw,30px)}
+  .stack .card{position:static;min-height:0;box-shadow:none}
+  .cred .name{font-size:clamp(1.5rem,2.6vw,2.4rem)}
+  .dn-card{width:min(34vw,460px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .reveal{transform:none;transition:opacity .6s ease}
+  .scrollcue i{animation:none}
+  .grain{display:none}
+  .cred{opacity:1;transform:none}
+  .cred .desc{max-height:none;opacity:1;margin-top:8px}
+  .tl-fill{transform:none}
+}
+</style>
+</head>
+<body>
+
+<!-- киносчётчик -->
+<div class="leader" id="leader">
+  <div class="leader-ring">
+    <div class="leader-sweep" id="leaderSweep"></div>
+    <span class="leader-num" id="leaderNum">3</span>
+  </div>
+  <div class="leader-cap">Gastro Ultima представляет</div>
+</div>
+
+<div class="bar bar-top">
+  <span class="hud-txt hud-l">Park Lane × Gastro Ultima</span>
+  <span class="hud-txt hud-r" id="hudScene">01 / 09</span>
+</div>
+<div class="bar bar-bottom">
+  <div class="reel"><div class="reel-fill" id="reelFill"></div></div>
+  <span class="hud-txt hud-tc" id="hudTc">TC 00:00</span>
+</div>
+
+<div class="grain"></div>
+<div class="vignette"></div>
+<div class="cutfx" id="cutfx"></div>
+
+<main>
+
+  <!-- 01 HERO: титул пролетает сквозь камеру, под ним открывается кино-кадр -->
+  <section class="hero" data-scene="hero" id="hero">
+    <div class="h-presents" id="hPresents">Gastro Ultima представляет</div>
+    <div class="h-title" id="hTitle">
+      <h1>
+        <span class="w"><span class="ch" style="--i:0">P</span><span class="ch" style="--i:1">A</span><span class="ch" style="--i:2">R</span><span class="ch" style="--i:3">K</span></span>
+        <span class="w"><span class="ch" style="--i:4">L</span><span class="ch" style="--i:5">A</span><span class="ch" style="--i:6">N</span><span class="ch" style="--i:7">E</span></span>
+      </h1>
+      <div class="h-x">× в партнёрстве с</div>
+      <div class="h-second">GASTRO ULTIMA</div>
+      <p class="h-sub">Бренд-шеф с двумя звёздами Мишлен и ресторанный консалтинг полного цикла.</p>
+    </div>
+    <div class="h-film" id="hFilm">
+      <figure class="film" data-film="hero">
+        <div class="film-screen"><div class="film-slot"><span>Слот · assets/hero.mp4</span></div></div>
+        <span class="fc fc1"></span><span class="fc fc2"></span><span class="fc fc3"></span><span class="fc fc4"></span>
+        <div class="film-hud t"><span class="rec">REC</span><span>PARK LANE · ALMATY</span></div>
+        <div class="film-hud b"><span>SC 01 · HERO</span><span class="ftc">00:00:00:00</span></div>
+      </figure>
+      <div class="h-caption">Коммерческое предложение · Алматы · 2026</div>
+    </div>
+    <div class="scrollcue">Листайте<i></i></div>
+  </section>
+
+  <!-- 02 ШЕФ: регалии печатаются штампами -->
+  <section class="stamps" data-scene="stamps" id="stamps">
+    <div class="strip" id="stripChef"><i>ЖАН АШНЕР · ДВЕ ЗВЕЗДЫ MICHELIN · ЖАН АШНЕР · ДВЕ ЗВЕЗДЫ MICHELIN · </i></div>
+    <div class="wrap">
+      <div class="st-list" id="stList">
+        <div class="st"><span class="k">Бренд-шеф проекта</span><span class="t">Жан <em>Ашнер</em></span></div>
+        <div class="st"><span class="k">Брюссель · La Maison de Boeuf · 2003</span><span class="t"><em>★★</em> Michelin</span></div>
+        <div class="st"><span class="k">Школа</span><span class="t">Le Cordon Bleu · Париж</span></div>
+        <div class="st"><span class="k">Сидней · Абу-Даби · Стамбул · Рио · Лондон</span><span class="t">4 континента</span></div>
+        <div class="st"><span class="k">Бренд-шеф кулинарного обслуживания</span><span class="t">Олимпиада Сочи-2014</span></div>
+        <div class="st"><span class="k">с 2023 · SALTER'S и Emiliya</span><span class="t">Sheraton Astana</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 ШЕФ: досье и условия -->
+  <section class="chef" data-scene="chef">
+    <div class="wrap">
+      <div class="portrait" id="portrait">
+        <span class="corner tl"></span><span class="corner br"></span>
+        <span class="slot">Фото · assets/chef.jpg</span>
+      </div>
+      <div>
+        <div class="eyebrow reveal">Досье</div>
+        <h2 class="reveal" style="--d:.08s">Жан Ашнер</h2>
+        <div class="role reveal" style="--d:.14s">Jean Ashner · Executive Chef</div>
+        <p class="reveal" style="--d:.2s">Готовил для королей Бельгии и Нидерландов и князя Монако, курировал банкет на свадьбе принца Марокко. Мечтает привести первую звезду Мишлен в Казахстан.</p>
+        <p class="reveal" style="--d:.26s">Для Park Lane: первый месяц — постановка кухни всего комплекса и гастроужин-открытие. Далее — кураторство в роли бренд-шефа, ~1 неделя в Алматы ежемесячно.</p>
+        <div class="spec reveal" style="--d:.32s">
+          <div class="spec-row">
+            <div class="k">Старт · Месяц 1<small>Постановка кухни + гастроужин. Жильё включено.</small></div>
+            <div class="v">5 000 000 ₸</div>
+          </div>
+          <div class="spec-row">
+            <div class="k">Кураторство · бренд-шеф<small>Контроль стандартов, развитие меню.</small></div>
+            <div class="v">1 000 000 ₸ / мес</div>
+          </div>
+          <div class="spec-row">
+            <div class="k">Гастроужины и мастер-классы<small>Отдельные события на этапе бренд-шефства.</small></div>
+            <div class="v">отдельно</div>
+          </div>
+          <div class="spec-foot">Условия согласованы с шефом предварительно</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- интерлюдия: кухня -->
+  <section class="interlude" data-scene="kitchen">
+    <figure class="film" data-film="kitchen">
+      <div class="film-screen"><div class="film-slot"><span>Слот · assets/kitchen.mp4</span></div></div>
+      <span class="fc fc1"></span><span class="fc fc2"></span><span class="fc fc3"></span><span class="fc fc4"></span>
+      <div class="film-hud t"><span class="rec">REC</span><span>KITCHEN</span></div>
+      <div class="film-hud b"><span>SC 04 · ПОСТАНОВКА</span><span class="ftc">00:00:00:00</span></div>
+    </figure>
+    <div class="icap">Месяц 1 · шеф ставит кухню комплекса</div>
+  </section>
+
+  <!-- 04 ГАСТРОУЖИНЫ: горизонтальная протяжка -->
+  <section class="dinner" data-scene="dinner" id="dinner">
+    <div class="head">
+      <div class="eyebrow reveal">Формат событий</div>
+      <h2 class="reveal" style="--d:.08s">Гастроужины</h2>
+      <p class="lede reveal" style="--d:.16s">Имя Ашнера и контакты Gastro Ultima открывают форматы, недоступные обычному ресторану.</p>
+    </div>
+    <div class="dn-track" id="dnTrack">
+      <div class="dn-card">
+        <span class="no">01</span>
+        <h3>Спонсорские партнёрства</h3>
+        <p>Элитный алкоголь, икра, морепродукты и другие продукты для ужинов — за счёт брендов-партнёров, которым важно присутствие на таких событиях.</p>
+        <div class="deliver">Итог: <b>событие без затрат на продукты</b></div>
+      </div>
+      <div class="dn-card">
+        <span class="no">02</span>
+        <h3>Приглашённые шефы</h3>
+        <p>Мишленовские повара со всего мира — совместные ужины с Ашнером. Каждый приезд — отдельный инфоповод для города.</p>
+        <div class="deliver">Итог: <b>гастроли мирового уровня</b></div>
+      </div>
+      <div class="dn-card">
+        <span class="no">03</span>
+        <h3>Дипломатические гости</h3>
+        <p>Представительства европейских стран в Казахстане — среди приглашённых. Статусная аудитория и упоминания в нужных кругах.</p>
+        <div class="deliver">Итог: <b>аудитория, которую не купить рекламой</b></div>
+      </div>
+    </div>
+    <div class="note-line">Гастроужины проводятся и оплачиваются отдельно — на этапе бренд-шефства</div>
+  </section>
+
+  <!-- 05 УСЛУГИ: титры -->
+  <section class="services" data-scene="services">
+    <div class="wrap">
+      <div class="head">
+        <div class="eyebrow reveal">Объём работ по Park Lane</div>
+        <h2 class="reveal" style="--d:.08s">11 направлений</h2>
+        <p class="lede reveal" style="--d:.16s">Каждое ведёт бренд-шеф вместе с командой Gastro Ultima.</p>
+      </div>
+      <div class="cred-list" id="credList">
+        <div class="cred"><div class="row"><span class="no">01</span><span class="name">À la carte + завтраки</span></div><div class="desc">Полная переработка основного меню и линейки завтраков.</div></div>
+        <div class="cred"><div class="row"><span class="no">02</span><span class="name">Банкетное меню</span></div><div class="desc">Три готовых банкетных сета разного бюджета + конструктор под индивидуальные мероприятия.</div></div>
+        <div class="cred"><div class="row"><span class="no">03</span><span class="name">Караоке + пати-меню</span></div><div class="desc">Отдельная линейка под вечерний формат: сеты, закуски, позиции на компанию.</div></div>
+        <div class="cred"><div class="row"><span class="no">04</span><span class="name">Тех-карты с технологом</span></div><div class="desc">Стандартизация всех блюд: точные тех-карты, выход, себестоимость, заготовки.</div></div>
+        <div class="cred"><div class="row"><span class="no">05</span><span class="name">Мастер-классы + обучение</span></div><div class="desc">Постановка команды кухни: техника, подача и стандарты от бренд-шефа.</div></div>
+        <div class="cred"><div class="row"><span class="no">06</span><span class="name">Презентация меню + гастроужин</span></div><div class="desc">Запуск нового меню как событие с авторским гастроужином от шефа.</div></div>
+        <div class="cred"><div class="row"><span class="no">07</span><span class="name">Гостевой шеф / амбассадор</span></div><div class="desc">Приглашение посла кухни или иностранного шефа как инфоповод.</div></div>
+        <div class="cred"><div class="row"><span class="no">08</span><span class="name">Пересмотр поставщиков</span></div><div class="desc">Аудит закупа: качество, цены, альтернативы и новые контракты.</div></div>
+        <div class="cred"><div class="row"><span class="no">09</span><span class="name">Тестинг меню</span></div><div class="desc">Дегустационные сессии и отладка à la carte и завтраков до вывода в продажу.</div></div>
+        <div class="cred"><div class="row"><span class="no">10</span><span class="name">Маркетинг</span></div><div class="desc">Продвижение запуска и поддержка спроса — по стратегии Gastro Ultima.</div></div>
+        <div class="cred"><div class="row"><span class="no">11</span><span class="name">Сезонное меню + блюдо от шефа</span></div><div class="desc">Сезонные обновления и фирменная позиция бренд-шефа.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- интерлюдия: подача -->
+  <section class="interlude" data-scene="plating">
+    <figure class="film" data-film="plating">
+      <div class="film-screen"><div class="film-slot"><span>Слот · assets/plating.mp4</span></div></div>
+      <span class="fc fc1"></span><span class="fc fc2"></span><span class="fc fc3"></span><span class="fc fc4"></span>
+      <div class="film-hud t"><span class="rec">REC</span><span>PLATING</span></div>
+      <div class="film-hud b"><span>SC 06 · НОВОЕ МЕНЮ</span><span class="ftc">00:00:00:00</span></div>
+    </figure>
+    <div class="icap">Новое меню Park Lane · подача</div>
+  </section>
+
+  <!-- 06 GASTRO ULTIMA: колода карт -->
+  <section class="gu" data-scene="gu">
+    <div class="wrap">
+      <div class="head">
+        <div class="eyebrow reveal">Gastro Ultima</div>
+        <h2 class="reveal" style="--d:.08s">Консалтинг для Park Lane</h2>
+        <p class="lede reveal" style="--d:.16s">Аудит, аналитика, маркетинговая стратегия, постановка процессов и обучение команды. Для Park Lane — пакет из трёх блоков.</p>
+        <div class="total reveal" style="--d:.24s">Пакет — 3 000 000 ₸</div>
+      </div>
+      <div class="stack">
+        <div class="card" style="--k:0">
+          <div class="price">1 000 000 ₸</div>
+          <h3>Аудит</h3>
+          <ul>
+            <li>Операционный аудит кухни и сервиса</li>
+            <li>Финансовый аудит: фудкост, наценка, маржа по категориям</li>
+            <li>Меню-инжиниринг текущего меню</li>
+            <li>Аудит поставщиков и закупа</li>
+            <li>Тех-процессы, хранение, заготовки</li>
+          </ul>
+          <div class="deliver">Итог: <b>карта точек роста и потерь</b></div>
+        </div>
+        <div class="card" style="--k:1">
+          <div class="price">800 000 ₸</div>
+          <h3>Аналитика</h3>
+          <ul>
+            <li>Рынок Алматы: сегмент, ёмкость, тренды</li>
+            <li>Конкурентный анализ и позиционирование</li>
+            <li>Портреты гостей и средний чек</li>
+            <li>ABC / XYZ продаж по блюдам и времени</li>
+            <li>Финмодель и прогноз окупаемости</li>
+          </ul>
+          <div class="deliver">Итог: <b>аналитический разбор + прогноз</b></div>
+        </div>
+        <div class="card" style="--k:2">
+          <div class="price">1 200 000 ₸</div>
+          <h3>Маркетинговый план</h3>
+          <ul>
+            <li>Позиционирование на базе бренд-шефа</li>
+            <li>Бренд-платформа и tone of voice</li>
+            <li>Медиа-микс: SMM, инфлюенсеры, PR</li>
+            <li>Контент- и event-стратегия</li>
+            <li>Медиаплан с KPI на 6 месяцев</li>
+          </ul>
+          <div class="deliver">Итог: <b>стратегия + дорожная карта</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 СТОИМОСТЬ: цифры мотает скролл -->
+  <section class="invest" data-scene="invest" id="invest">
+    <div class="wrap">
+      <div class="eyebrow">Экономика проекта</div>
+      <div class="inv-screens" id="invScreens">
+        <div class="inv-screen" id="invA">
+          <div class="lbl">Запуск · единоразово</div>
+          <div class="num"><span id="numA">8 000 000</span><span class="cur">₸</span></div>
+          <div class="meta">Старт бренд-шефа 5 000 000 ₸ + пакет Gastro Ultima 3 000 000 ₸.</div>
+        </div>
+        <div class="inv-screen" id="invB">
+          <div class="lbl">Кураторство · ежемесячно</div>
+          <div class="num"><span id="numB">1 000 000</span><span class="cur">₸</span></div>
+          <div class="meta">Бренд-шеф: ~1 неделя в Алматы каждый месяц.</div>
+        </div>
+      </div>
+      <div class="inv-foot">Гастроужины и мастер-классы — отдельно, со спонсорами и продажей мест</div>
+    </div>
+  </section>
+
+  <!-- 08 ЭТАПЫ -->
+  <section class="road" data-scene="road" id="road">
+    <div class="wrap">
+      <div class="head">
+        <div class="eyebrow reveal">Дорожная карта</div>
+        <h2 class="reveal" style="--d:.08s">Этапы</h2>
+      </div>
+      <div class="timeline">
+        <div class="tl-line"></div>
+        <div class="tl-fill" id="tlFill"></div>
+        <div class="phase reveal">
+          <div class="ph-no">Месяц 1 — Постановка</div>
+          <h3>Фундамент</h3>
+          <ul>
+            <li>Аудит и аналитика Gastro Ultima</li>
+            <li>Приезд шефа, постановка кухни</li>
+            <li>Тех-карты и тестинги меню</li>
+            <li>Пересмотр поставщиков</li>
+            <li>Гастроужин-открытие</li>
+          </ul>
+        </div>
+        <div class="phase reveal" style="--d:.1s">
+          <div class="ph-no">Месяц 2 — Запуск</div>
+          <h3>Старт меню</h3>
+          <ul>
+            <li>À la carte + завтраки в продаже</li>
+            <li>Банкет, караоке и пати-меню</li>
+            <li>Старт маркетинг-кампании</li>
+            <li>Презентация нового меню</li>
+          </ul>
+        </div>
+        <div class="phase reveal" style="--d:.2s">
+          <div class="ph-no">Далее — Развитие</div>
+          <h3>Кураторство</h3>
+          <ul>
+            <li>Ежемесячные визиты шефа</li>
+            <li>Сезонные обновления и блюдо от шефа</li>
+            <li>Гастроужины с гостями и спонсорами</li>
+            <li>Поддержка спроса по стратегии</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 ФИНАЛ -->
+  <section class="finale" data-scene="finale">
+    <div class="fin-inner">
+      <div class="eyebrow reveal">Gastro Ultima</div>
+      <h2 class="reveal" style="--d:.1s">Обсудим запуск</h2>
+      <p class="sub reveal" style="--d:.2s">Состав работ, сроки и условия — на встрече. Покажем расчёты и план первого месяца.</p>
+      <a class="cta reveal" style="--d:.28s" href="tel:+77020230000">Позвонить →</a>
+      <div class="contacts reveal" style="--d:.36s">
+        <div class="c">Телефон<a href="tel:+77020230000">8 702 023 00 00</a></div>
+        <div class="c">Почта<a href="mailto:andamassov@yahoo.com">andamassov@yahoo.com</a></div>
+      </div>
+    </div>
+    <figure class="film reveal" style="--d:.44s" data-film="finale">
+      <div class="film-screen"><div class="film-slot"><span>Слот · assets/finale.mp4</span></div></div>
+      <span class="fc fc1"></span><span class="fc fc2"></span><span class="fc fc3"></span><span class="fc fc4"></span>
+      <div class="film-hud t"><span class="rec">REC</span><span>PARK LANE</span></div>
+      <div class="film-hud b"><span>SC 09 · FIN</span><span class="ftc">00:00:00:00</span></div>
+    </figure>
+  </section>
+
+</main>
+
+<footer>
+  <div class="f">Gastro Ultima · 2026 · Коммерческое предложение подготовлено для Park Lane</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js"></script>
+<script>
+(function(){
+  var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var coarse = window.matchMedia('(pointer: coarse)').matches;
+  var hasGsap = !!(window.gsap && window.ScrollTrigger);
+
+  /* ---------- киносчётчик 3-2-1 ---------- */
+  (function(){
+    var num = document.getElementById('leaderNum');
+    var sweep = document.getElementById('leaderSweep');
+    if(rm){ document.body.classList.add('loaded'); return; }
+    var t0 = null, dur = 1800;
+    function tick(ts){
+      if(!t0) t0 = ts;
+      var p = Math.min((ts - t0)/dur, 1);
+      var n = 3 - Math.floor(p * 3);
+      num.textContent = Math.max(n, 1);
+      var deg = (p * 3 % 1) * 360;
+      sweep.style.background = 'conic-gradient(rgba(203,164,94,.16) ' + deg + 'deg, transparent ' + deg + 'deg)';
+      if(p < 1) requestAnimationFrame(tick);
+      else document.body.classList.add('loaded');
+    }
+    requestAnimationFrame(tick);
+    setTimeout(function(){ document.body.classList.add('loaded'); }, 3500); // страховка
+  })();
+
+  /* ---------- кино-кадры: assets/<key>.mp4 -> .jpg -> слот ----------
+     Рамка подгоняется под пропорции видео; видео НЕ луп:
+     проигрывается один раз, когда кадр появляется на экране. */
+  var heroVideo = null;
+  function playOnce(v){
+    if(v.ended) v.currentTime = 0;
+    if(v.paused) v.play().catch(function(){});
+  }
+  var filmIO = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      var v = e.target.__video;
+      if(!v) return;
+      if(e.isIntersecting) playOnce(v);
+      else v.pause();
+    });
+  }, { threshold: .35 });
+  function watchFilm(film, v){
+    film.__video = v;
+    /* hero-видео при GSAP стартует из таймлайна сцены, когда кадр реально открылся */
+    if(film.closest('#hero') && hasGsap && !rm){ heroVideo = v; return; }
+    filmIO.observe(film);
+  }
+  document.querySelectorAll('.film[data-film]').forEach(function(film){
+    var key = film.getAttribute('data-film');
+    var screen = film.querySelector('.film-screen');
+    var v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'auto';
+    v.setAttribute('muted',''); v.setAttribute('playsinline','');
+    v.addEventListener('loadedmetadata', function(){
+      if(v.videoWidth && v.videoHeight){
+        screen.style.aspectRatio = v.videoWidth + ' / ' + v.videoHeight;
+      }
+      screen.appendChild(v); film.classList.add('has-media');
+      watchFilm(film, v);
+    }, { once: true });
+    v.addEventListener('error', function(){
+      var img = new Image();
+      img.onload = function(){
+        if(img.naturalWidth && img.naturalHeight){
+          screen.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
+        }
+        screen.appendChild(img); film.classList.add('has-media');
+      };
+      img.src = 'assets/' + key + '.jpg';
+    }, { once: true });
+    v.src = 'assets/' + key + '.mp4';
+  });
+
+  /* портрет шефа */
+  (function(){
+    var img = new Image();
+    img.onload = function(){
+      var p = document.getElementById('portrait');
+      p.insertBefore(img, p.firstChild);
+      p.classList.add('has-photo');
+    };
+    img.src = 'assets/chef.jpg';
+  })();
+
+  /* таймкоды на кадрах */
+  (function(){
+    var tcs = document.querySelectorAll('.ftc');
+    if(!tcs.length || rm) return;
+    var start = performance.now();
+    setInterval(function(){
+      var ms = performance.now() - start;
+      var f = Math.floor(ms / 41.7) % 24;
+      var s = Math.floor(ms / 1000) % 60;
+      var m = Math.floor(ms / 60000) % 60;
+      var str = '00:' + ('0'+m).slice(-2) + ':' + ('0'+s).slice(-2) + ':' + ('0'+f).slice(-2);
+      tcs.forEach(function(el){ el.textContent = str; });
+    }, 125);
+  })();
+
+  /* ---------- reveal-фолбэк (работает и без GSAP) ---------- */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -6% 0px' });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+  /* титры услуг: подсветка строки у центра экрана (фолбэк без GSAP) */
+  var creds = Array.prototype.slice.call(document.querySelectorAll('.cred'));
+  if(!hasGsap || rm){
+    var io2 = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('on'); });
+    }, { rootMargin: '-30% 0px -30% 0px' });
+    creds.forEach(function(el){ io2.observe(el); });
+  }
+
+  /* ---------- HUD ---------- */
+  var scenes = Array.prototype.slice.call(document.querySelectorAll('[data-scene]'));
+  var sceneKeys = [];
+  scenes.forEach(function(s){ var k = s.getAttribute('data-scene'); if(sceneKeys.indexOf(k) < 0) sceneKeys.push(k); });
+  var reelFill = document.getElementById('reelFill');
+  var hudTc = document.getElementById('hudTc');
+  var hudScene = document.getElementById('hudScene');
+  var ticking = false;
+  function hud(){
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - doc.clientHeight;
+    var sc = max > 0 ? (window.scrollY || doc.scrollTop) / max : 0;
+    reelFill.style.transform = 'scaleX(' + sc + ')';
+    var totalSec = Math.round(sc * 132); // условный хронометраж «трейлера» 2:12
+    hudTc.textContent = 'TC 0' + Math.floor(totalSec/60) + ':' + ('0' + totalSec%60).slice(-2);
+    var idx = 0;
+    for(var i = 0; i < scenes.length; i++){
+      if(scenes[i].getBoundingClientRect().top <= window.innerHeight * 0.5) idx = i;
+    }
+    hudScene.textContent = ('0' + (idx + 1)).slice(-2) + ' / ' + ('0' + scenes.length).slice(-2);
+    ticking = false;
+  }
+  document.addEventListener('scroll', function(){
+    if(!ticking){ requestAnimationFrame(hud); ticking = true; }
+  }, { passive: true });
+  hud();
+
+  if(rm || !hasGsap){ document.body.classList.add('no-cine'); return; }
+
+  /* ================= GSAP: скролл = таймлайн ================= */
+  gsap.registerPlugin(ScrollTrigger);
+
+  if(window.Lenis && !coarse){
+    var lenis = new Lenis({ duration: 1.15 });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(function(time){ lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  /* монтажная склейка: провал в чёрное на границе сцены */
+  var cut = document.getElementById('cutfx');
+  function addCut(trigger){
+    gsap.timeline({
+      scrollTrigger: { trigger: trigger, start: 'bottom 65%', end: 'bottom -15%', scrub: true }
+    })
+    .fromTo(cut, { opacity: 0 }, { opacity: 1, ease: 'power2.in', duration: .5 })
+    .to(cut, { opacity: 0, ease: 'power2.out', duration: .5 });
+  }
+
+  /* --- HERO: титул пролетает сквозь камеру, открывается кино-кадр --- */
+  var heroTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: '#hero', start: 'top top', end: '+=230%', scrub: true, pin: true, anticipatePin: 1,
+      onUpdate: function(self){
+        if(!heroVideo) return;
+        /* видео стартует только когда кино-кадр уже открылся, и один раз */
+        if(self.progress > .55 && self.progress < .99) playOnce(heroVideo);
+        else heroVideo.pause();
+      }
+    }
+  });
+  heroTl
+    .to('#hPresents', { opacity: 0, y: -20, ease: 'none', duration: .1 }, 0)
+    .to('#hTitle', { scale: 1.06, ease: 'none', duration: .25 }, 0)
+    .to('#hTitle', { scale: 4.6, opacity: 0, ease: 'power1.in', duration: .35 }, .25)
+    .to('.scrollcue', { opacity: 0, duration: .08 }, .05)
+    .fromTo('#hFilm', { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, ease: 'none', duration: .3 }, .45)
+    .to('#hFilm', { scale: .96, ease: 'none', duration: .25 }, .75);
+  addCut('#hero');
+
+  /* --- ШТАМПЫ: регалии печатаются одна за другой --- */
+  var sts = gsap.utils.toArray('#stList .st');
+  var stTl = gsap.timeline({
+    scrollTrigger: { trigger: '#stamps', start: 'top top', end: '+=' + (sts.length * 55) + '%', scrub: true, pin: true, anticipatePin: 1 }
+  });
+  sts.forEach(function(st, i){
+    stTl.from(st, { yPercent: 130, opacity: 0, rotate: i % 2 ? 1.5 : -1.5, ease: 'power1.out', duration: 1 });
+    if(i > 0) stTl.to(sts[i-1], { opacity: .28, ease: 'none', duration: .6 }, '<');
+  });
+  gsap.to('#stripChef i', {
+    xPercent: -50, ease: 'none',
+    scrollTrigger: { trigger: '#stamps', start: 'top bottom', end: 'bottom top', scrub: true }
+  });
+  addCut('#stamps');
+
+  /* --- досье: портрет открывается маской --- */
+  gsap.fromTo('#portrait', { clipPath: 'inset(0 0 100% 0)' }, {
+    clipPath: 'inset(0 0 0% 0)', ease: 'power2.out', duration: 1.3,
+    scrollTrigger: { trigger: '.chef', start: 'top 72%' }
+  });
+
+  /* --- кино-интерлюдии: лёгкий въезд кадра --- */
+  gsap.utils.toArray('.interlude .film').forEach(function(f){
+    gsap.fromTo(f, { scale: .94, opacity: .4 }, {
+      scale: 1, opacity: 1, ease: 'none',
+      scrollTrigger: { trigger: f, start: 'top 95%', end: 'top 35%', scrub: true }
+    });
+  });
+
+  /* --- ГАСТРОУЖИНЫ: вертикальный скролл тянет карточки вбок --- */
+  var track = document.getElementById('dnTrack');
+  function dnDist(){ return Math.max(track.scrollWidth - window.innerWidth, 0); }
+  gsap.to(track, {
+    x: function(){ return -dnDist(); },
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#dinner', start: 'top top', end: function(){ return '+=' + (dnDist() + window.innerHeight * .4); },
+      scrub: true, pin: true, anticipatePin: 1, invalidateOnRefresh: true
+    }
+  });
+  addCut('#dinner');
+
+  /* --- УСЛУГИ: строка титров вспыхивает у центра --- */
+  creds.forEach(function(el){
+    ScrollTrigger.create({
+      trigger: el, start: 'top 62%', end: 'bottom 30%',
+      toggleClass: 'on'
+    });
+  });
+
+  /* --- СТОИМОСТЬ: цифры мотает скролл --- */
+  function fmt(n){ return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+  var numA = document.getElementById('numA'), numB = document.getElementById('numB');
+  var cA = { v: 0 }, cB = { v: 0 };
+  numA.textContent = '0'; numB.textContent = '0';
+  gsap.set('#invB', { opacity: 0, yPercent: 24 });
+  var invTl = gsap.timeline({
+    scrollTrigger: { trigger: '#invest', start: 'top top', end: '+=170%', scrub: true, pin: true, anticipatePin: 1 }
+  });
+  invTl
+    .to(cA, { v: 8000000, ease: 'none', duration: .4, onUpdate: function(){ numA.textContent = fmt(cA.v); } })
+    .to({}, { duration: .1 })
+    .to('#invA', { opacity: 0, yPercent: -24, ease: 'none', duration: .12 })
+    .to('#invB', { opacity: 1, yPercent: 0, ease: 'none', duration: .12 })
+    .to(cB, { v: 1000000, ease: 'none', duration: .3, onUpdate: function(){ numB.textContent = fmt(cB.v); } });
+
+  /* --- ЭТАПЫ: линия рисуется скроллом --- */
+  gsap.to('#tlFill', {
+    scaleY: 1, ease: 'none',
+    scrollTrigger: { trigger: '#road .timeline', start: 'top 70%', end: 'bottom 45%', scrub: true }
+  });
+})();
+</script>
+</body>
+</html>
