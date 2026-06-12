@@ -74,7 +74,9 @@ body.loaded .leader{opacity:0;visibility:hidden}
 .film{position:relative;width:100%;background:#000;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
 .film-screen{position:relative;aspect-ratio:16/9;overflow:hidden;background:
   radial-gradient(90% 90% at 50% 40%,rgba(203,164,94,.10),transparent 65%),#000}
-.film-screen video,.film-screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.film-screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.film-screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.film.is-photo .rec{display:none}
 .film-slot{position:absolute;inset:0;display:grid;place-items:center}
 .film-slot span{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--ash-dim);border:1px dashed rgba(203,164,94,.28);padding:9px 16px}
 .film.has-media .film-slot{display:none}
@@ -377,7 +379,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   <!-- интерлюдия: кухня -->
   <section class="interlude" data-scene="kitchen">
     <figure class="film" data-film="kitchen">
-      <div class="film-screen"><div class="film-slot"><span>Слот · assets/kitchen.mp4</span></div></div>
+      <div class="film-screen"><div class="film-slot"><span>Фото · assets/kitchen.jpg</span></div></div>
       <span class="fc fc1"></span><span class="fc fc2"></span><span class="fc fc3"></span><span class="fc fc4"></span>
       <div class="film-hud t"><span class="rec">REC</span><span>KITCHEN</span></div>
       <div class="film-hud b"><span>SC 04 · ПОСТАНОВКА</span><span class="ftc">00:00:00:00</span></div>
@@ -401,8 +403,8 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
       </div>
       <div class="dn-card">
         <span class="no">02</span>
-        <h3>Приглашённые шефы</h3>
-        <p>Мишленовские повара со всего мира — совместные ужины с Ашнером. Каждый приезд — отдельный инфоповод для города.</p>
+        <h3>Гостевые шефы и амбассадоры</h3>
+        <p>Мишленовские повара и послы кухни со всего мира — совместные ужины с Ашнером. Каждый приезд — отдельный инфоповод для города.</p>
         <div class="deliver">Итог: <b>гастроли мирового уровня</b></div>
       </div>
       <div class="dn-card">
@@ -420,7 +422,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     <div class="wrap">
       <div class="head">
         <div class="eyebrow reveal">Объём работ по Park Lane</div>
-        <h2 class="reveal" style="--d:.08s">11 направлений</h2>
+        <h2 class="reveal" style="--d:.08s">10 направлений</h2>
         <p class="lede reveal" style="--d:.16s">Каждое ведёт бренд-шеф вместе с командой Gastro Ultima.</p>
       </div>
       <div class="cred-list" id="credList">
@@ -430,11 +432,10 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
         <div class="cred"><div class="row"><span class="no">04</span><span class="name">Тех-карты с технологом</span></div><div class="desc">Стандартизация всех блюд: точные тех-карты, выход, себестоимость, заготовки.</div></div>
         <div class="cred"><div class="row"><span class="no">05</span><span class="name">Мастер-классы + обучение</span></div><div class="desc">Постановка команды кухни: техника, подача и стандарты от бренд-шефа.</div></div>
         <div class="cred"><div class="row"><span class="no">06</span><span class="name">Презентация меню + гастроужин</span></div><div class="desc">Запуск нового меню как событие с авторским гастроужином от шефа.</div></div>
-        <div class="cred"><div class="row"><span class="no">07</span><span class="name">Гостевой шеф / амбассадор</span></div><div class="desc">Приглашение посла кухни или иностранного шефа как инфоповод.</div></div>
-        <div class="cred"><div class="row"><span class="no">08</span><span class="name">Пересмотр поставщиков</span></div><div class="desc">Аудит закупа: качество, цены, альтернативы и новые контракты.</div></div>
-        <div class="cred"><div class="row"><span class="no">09</span><span class="name">Тестинг меню</span></div><div class="desc">Дегустационные сессии и отладка à la carte и завтраков до вывода в продажу.</div></div>
-        <div class="cred"><div class="row"><span class="no">10</span><span class="name">Маркетинг</span></div><div class="desc">Продвижение запуска и поддержка спроса — по стратегии Gastro Ultima.</div></div>
-        <div class="cred"><div class="row"><span class="no">11</span><span class="name">Сезонное меню + блюдо от шефа</span></div><div class="desc">Сезонные обновления и фирменная позиция бренд-шефа.</div></div>
+        <div class="cred"><div class="row"><span class="no">07</span><span class="name">Пересмотр поставщиков</span></div><div class="desc">Аудит закупа: качество, цены, альтернативы и новые контракты.</div></div>
+        <div class="cred"><div class="row"><span class="no">08</span><span class="name">Тестинг меню</span></div><div class="desc">Дегустационные сессии и отладка à la carte и завтраков до вывода в продажу.</div></div>
+        <div class="cred"><div class="row"><span class="no">09</span><span class="name">Маркетинг</span></div><div class="desc">Продвижение запуска и поддержка спроса — по стратегии Gastro Ultima.</div></div>
+        <div class="cred"><div class="row"><span class="no">10</span><span class="name">Сезонное меню + блюдо от шефа</span></div><div class="desc">Сезонные обновления и фирменная позиция бренд-шефа.</div></div>
       </div>
     </div>
   </section>
@@ -442,7 +443,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   <!-- интерлюдия: подача -->
   <section class="interlude" data-scene="plating">
     <figure class="film" data-film="plating">
-      <div class="film-screen"><div class="film-slot"><span>Слот · assets/plating.mp4</span></div></div>
+      <div class="film-screen"><div class="film-slot"><span>Фото · assets/plating.jpg</span></div></div>
       <span class="fc fc1"></span><span class="fc fc2"></span><span class="fc fc3"></span><span class="fc fc4"></span>
       <div class="film-hud t"><span class="rec">REC</span><span>PLATING</span></div>
       <div class="film-hud b"><span>SC 06 · НОВОЕ МЕНЮ</span><span class="ftc">00:00:00:00</span></div>
@@ -569,16 +570,16 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   <section class="finale" data-scene="finale">
     <div class="fin-inner">
       <div class="eyebrow reveal">Gastro Ultima</div>
-      <h2 class="reveal" style="--d:.1s">Обсудим запуск</h2>
-      <p class="sub reveal" style="--d:.2s">Состав работ, сроки и условия — на встрече. Покажем расчёты и план первого месяца.</p>
-      <a class="cta reveal" style="--d:.28s" href="tel:+77020230000">Позвонить →</a>
+      <h2 class="reveal" style="--d:.1s">Готовы к запуску</h2>
+      <p class="sub reveal" style="--d:.2s">Все условия зафиксированы в этом предложении: запуск 8 000 000 ₸, кураторство 1 000 000 ₸ в месяц, гастроужины — отдельно. После подтверждения согласуем дату приезда шефа и начинаем месяц постановки.</p>
+      <a class="cta reveal" style="--d:.28s" href="tel:+77020230000">Подтвердить запуск →</a>
       <div class="contacts reveal" style="--d:.36s">
         <div class="c">Телефон<a href="tel:+77020230000">8 702 023 00 00</a></div>
         <div class="c">Почта<a href="mailto:andamassov@yahoo.com">andamassov@yahoo.com</a></div>
       </div>
     </div>
     <figure class="film reveal" style="--d:.44s" data-film="finale">
-      <div class="film-screen"><div class="film-slot"><span>Слот · assets/finale.mp4</span></div></div>
+      <div class="film-screen"><div class="film-slot"><span>Фото · assets/finale.jpg</span></div></div>
       <span class="fc fc1"></span><span class="fc fc2"></span><span class="fc fc3"></span><span class="fc fc4"></span>
       <div class="film-hud t"><span class="rec">REC</span><span>PARK LANE</span></div>
       <div class="film-hud b"><span>SC 09 · FIN</span><span class="ftc">00:00:00:00</span></div>
@@ -620,9 +621,10 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     setTimeout(function(){ document.body.classList.add('loaded'); }, 3500); // страховка
   })();
 
-  /* ---------- кино-кадры: assets/<key>.mp4 -> .jpg -> слот ----------
-     Рамка подгоняется под пропорции видео; видео НЕ луп:
-     проигрывается один раз, когда кадр появляется на экране. */
+  /* ---------- кино-кадры ----------
+     hero — видео: прокрутка страницы = прокрутка ролика (scrub),
+     рамка принимает пропорции ролика, кадр виден целиком.
+     Остальные кадры — фото (assets/<key>.jpg), видео-фолбэк на будущее. */
   var heroVideo = null;
   function playOnce(v){
     if(v.ended) v.currentTime = 0;
@@ -638,13 +640,11 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   }, { threshold: .35 });
   function watchFilm(film, v){
     film.__video = v;
-    /* hero-видео при GSAP стартует из таймлайна сцены, когда кадр реально открылся */
+    /* hero-видео при GSAP скрабится таймлайном сцены, IO ему не нужен */
     if(film.closest('#hero') && hasGsap && !rm){ heroVideo = v; return; }
     filmIO.observe(film);
   }
-  document.querySelectorAll('.film[data-film]').forEach(function(film){
-    var key = film.getAttribute('data-film');
-    var screen = film.querySelector('.film-screen');
+  function attachVideo(film, screen, key, onFail){
     var v = document.createElement('video');
     v.muted = true; v.playsInline = true; v.preload = 'auto';
     v.setAttribute('muted',''); v.setAttribute('playsinline','');
@@ -655,17 +655,30 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
       screen.appendChild(v); film.classList.add('has-media');
       watchFilm(film, v);
     }, { once: true });
-    v.addEventListener('error', function(){
-      var img = new Image();
-      img.onload = function(){
-        if(img.naturalWidth && img.naturalHeight){
-          screen.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
-        }
-        screen.appendChild(img); film.classList.add('has-media');
-      };
-      img.src = 'assets/' + key + '.jpg';
-    }, { once: true });
+    v.addEventListener('error', function(){ if(onFail) onFail(); }, { once: true });
     v.src = 'assets/' + key + '.mp4';
+  }
+  function attachImage(film, screen, key, onFail){
+    var img = new Image();
+    img.onload = function(){
+      if(img.naturalWidth && img.naturalHeight){
+        screen.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
+      }
+      screen.appendChild(img);
+      film.classList.add('has-media');
+      film.classList.add('is-photo');
+    };
+    img.onerror = function(){ if(onFail) onFail(); };
+    img.src = 'assets/' + key + '.jpg';
+  }
+  document.querySelectorAll('.film[data-film]').forEach(function(film){
+    var key = film.getAttribute('data-film');
+    var screen = film.querySelector('.film-screen');
+    if(key === 'hero'){
+      attachVideo(film, screen, key, function(){ attachImage(film, screen, key); });
+    } else {
+      attachImage(film, screen, key, function(){ attachVideo(film, screen, key); });
+    }
   });
 
   /* портрет шефа */
@@ -760,25 +773,30 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     .to(cut, { opacity: 0, ease: 'power2.out', duration: .5 });
   }
 
-  /* --- HERO: титул пролетает сквозь камеру, открывается кино-кадр --- */
+  /* --- HERO: титул пролетает сквозь камеру, дальше скролл прокручивает видео ---
+     Прокрутка = таймлайн ролика: progress .42–.99 пина мапится на currentTime.
+     Видео никогда не play() — каждый кадр ставит скролл, поэтому оно
+     не может «начаться слишком рано» и всегда видно целиком. */
+  var SCRUB_FROM = .42, SCRUB_TO = .99;
   var heroTl = gsap.timeline({
     scrollTrigger: {
-      trigger: '#hero', start: 'top top', end: '+=230%', scrub: true, pin: true, anticipatePin: 1,
+      trigger: '#hero', start: 'top top', end: '+=320%', scrub: true, pin: true, anticipatePin: 1,
       onUpdate: function(self){
-        if(!heroVideo) return;
-        /* видео стартует только когда кино-кадр уже открылся, и один раз */
-        if(self.progress > .55 && self.progress < .99) playOnce(heroVideo);
-        else heroVideo.pause();
+        if(!heroVideo || !heroVideo.duration) return;
+        var p = (self.progress - SCRUB_FROM) / (SCRUB_TO - SCRUB_FROM);
+        p = Math.max(0, Math.min(1, p));
+        var t = p * Math.max(heroVideo.duration - .05, 0);
+        if(Math.abs(heroVideo.currentTime - t) > .034) heroVideo.currentTime = t;
       }
     }
   });
   heroTl
-    .to('#hPresents', { opacity: 0, y: -20, ease: 'none', duration: .1 }, 0)
-    .to('#hTitle', { scale: 1.06, ease: 'none', duration: .25 }, 0)
-    .to('#hTitle', { scale: 4.6, opacity: 0, ease: 'power1.in', duration: .35 }, .25)
-    .to('.scrollcue', { opacity: 0, duration: .08 }, .05)
-    .fromTo('#hFilm', { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, ease: 'none', duration: .3 }, .45)
-    .to('#hFilm', { scale: .96, ease: 'none', duration: .25 }, .75);
+    .to('#hPresents', { opacity: 0, y: -20, ease: 'none', duration: .06 }, 0)
+    .to('#hTitle', { scale: 1.06, ease: 'none', duration: .16 }, 0)
+    .to('#hTitle', { scale: 4.6, opacity: 0, ease: 'power1.in', duration: .18 }, .16)
+    .to('.scrollcue', { opacity: 0, duration: .05 }, .03)
+    .fromTo('#hFilm', { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, ease: 'none', duration: .1 }, .32)
+    .to({}, { duration: .58 }); /* удержание кадра — здесь скролл мотает видео */
   addCut('#hero');
 
   /* --- ШТАМПЫ: регалии печатаются одна за другой --- */
