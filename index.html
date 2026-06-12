@@ -614,24 +614,46 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   var coarse = window.matchMedia('(pointer: coarse)').matches;
   var hasGsap = !!(window.gsap && window.ScrollTrigger);
 
-  /* ---------- киносчётчик 3-2-1 ---------- */
+  /* ---------- готовность сайта: заставка держится, пока всё не загрузится ---------- */
+  var ready = { min: false, load: false, video: false, bgTotal: 0, bgDone: 0, capped: false };
+  window.addEventListener('load', function(){ ready.load = true; });
+  setTimeout(function(){ ready.capped = true; }, 12000); /* жёсткий потолок — никогда не виснем вечно */
+  function allReady(){
+    return ready.capped || (ready.min && ready.load && ready.video && ready.bgDone >= ready.bgTotal);
+  }
+
+  /* ---------- киносчётчик 3-2-1, отпускает только готовый сайт ---------- */
+  var leaderDone = false;
+  function leaderFinish(){
+    if(leaderDone) return;
+    leaderDone = true;
+    document.body.classList.add('loaded');
+    if(window.ScrollTrigger){ try{ ScrollTrigger.refresh(); }catch(e){} }
+  }
   (function(){
     var num = document.getElementById('leaderNum');
     var sweep = document.getElementById('leaderSweep');
-    if(rm){ document.body.classList.add('loaded'); return; }
+    var cap = document.querySelector('.leader-cap');
+    setTimeout(function(){ ready.min = true; }, 1800);
+    if(rm){
+      ready.min = true;
+      var iv = setInterval(function(){ if(allReady()){ clearInterval(iv); leaderFinish(); } }, 200);
+      return;
+    }
     var t0 = null, dur = 1800;
     function tick(ts){
       if(!t0) t0 = ts;
-      var p = Math.min((ts - t0)/dur, 1);
+      var el = ts - t0;
+      var p = Math.min(el/dur, 1);
       var n = 3 - Math.floor(p * 3);
       num.textContent = Math.max(n, 1);
-      var deg = (p * 3 % 1) * 360;
+      var deg = (p < 1 ? (p * 3 % 1) : (el/1000 % 1)) * 360;
       sweep.style.background = 'conic-gradient(rgba(203,164,94,.16) ' + deg + 'deg, transparent ' + deg + 'deg)';
-      if(p < 1) requestAnimationFrame(tick);
-      else document.body.classList.add('loaded');
+      if(p >= 1 && !allReady() && cap) cap.textContent = 'Загрузка';
+      if(p >= 1 && allReady()){ leaderFinish(); return; }
+      requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
-    setTimeout(function(){ document.body.classList.add('loaded'); }, 3500); // страховка
   })();
 
   /* ---------- кино-кадры ----------
@@ -667,11 +689,18 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
       }
       screen.appendChild(v); film.classList.add('has-media');
       watchFilm(film, v);
+      /* размеры кадра изменились — пересчитать пины */
+      if(window.ScrollTrigger){ try{ ScrollTrigger.refresh(); }catch(e){} }
+      if(key === 'hero'){
+        /* заставка ждёт, пока видео сможет играть без подгрузки */
+        if(v.readyState >= 3){ ready.video = true; }
+        else v.addEventListener('canplay', function(){ ready.video = true; }, { once: true });
+      }
     }, { once: true });
     v.addEventListener('error', function(){ if(onFail) onFail(); }, { once: true });
     v.src = 'assets/' + key + '.mp4';
   }
-  function attachImage(film, screen, key, onFail){
+  function attachImage(film, screen, key, onFail, onOk){
     var img = new Image();
     img.onload = function(){
       if(img.naturalWidth && img.naturalHeight){
@@ -680,6 +709,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
       screen.appendChild(img);
       film.classList.add('has-media');
       film.classList.add('is-photo');
+      if(onOk) onOk();
     };
     img.onerror = function(){ if(onFail) onFail(); };
     img.src = 'assets/' + key + '.jpg';
@@ -688,25 +718,35 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     var key = film.getAttribute('data-film');
     var screen = film.querySelector('.film-screen');
     if(key === 'hero'){
-      attachVideo(film, screen, key, function(){ attachImage(film, screen, key); });
+      attachVideo(film, screen, key, function(){
+        /* видео не загрузилось — фолбэк на фото, заставку не держим */
+        attachImage(film, screen, key,
+          function(){ ready.video = true; },
+          function(){ ready.video = true; });
+      });
     } else {
       attachImage(film, screen, key, function(){ attachVideo(film, screen, key); });
     }
   });
 
-  /* портрет шефа */
+  /* портрет шефа (заставка ждёт и его) */
+  ready.bgTotal++;
   (function(){
     var img = new Image();
     img.onload = function(){
       var p = document.getElementById('portrait');
       p.insertBefore(img, p.firstChild);
       p.classList.add('has-photo');
+      ready.bgDone++;
     };
+    img.onerror = function(){ ready.bgDone++; };
     img.src = 'assets/chef.jpg';
   })();
 
-  /* фоновые фото секций: assets/<key>.jpg во весь экран + лёгкий параллакс */
+  /* фоновые фото секций: assets/<key>.jpg во весь экран + лёгкий параллакс.
+     Заставка держится, пока все фоны не загрузятся. */
   document.querySelectorAll('[data-bg]').forEach(function(sec){
+    ready.bgTotal++;
     var key = sec.getAttribute('data-bg');
     var img = new Image();
     /* фокусная точка кадра: что должно остаться в кадре при обрезке на телефоне */
@@ -717,6 +757,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
       holder.className = 'scene-bg';
       holder.appendChild(img);
       sec.insertBefore(holder, sec.firstChild);
+      ready.bgDone++;
       if(hasGsap && !rm){
         gsap.fromTo(img, { yPercent: -4 }, {
           yPercent: 4, ease: 'none',
@@ -724,6 +765,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
         });
       }
     };
+    img.onerror = function(){ ready.bgDone++; };
     img.src = 'assets/' + key + '.jpg';
   });
 
