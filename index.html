@@ -99,8 +99,8 @@ body.loaded .leader{opacity:0;visibility:hidden}
 .scene-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
 .scene-bg img{position:absolute;left:0;right:0;top:-8%;width:100%;height:116%;object-fit:cover;will-change:transform}
 .scene-bg::after{content:"";position:absolute;inset:0;background:
-  linear-gradient(180deg,rgba(10,10,12,.95),rgba(10,10,12,.68) 38%,rgba(10,10,12,.72) 62%,rgba(10,10,12,.96)),
-  radial-gradient(120% 80% at 50% 50%,transparent 40%,rgba(10,10,12,.55) 100%)}
+  linear-gradient(180deg,rgba(10,10,12,.93),rgba(10,10,12,.55) 38%,rgba(10,10,12,.6) 62%,rgba(10,10,12,.95)),
+  radial-gradient(120% 80% at 50% 50%,transparent 42%,rgba(10,10,12,.5) 100%)}
 
 /* ============ общие блоки ============ */
 main{position:relative;z-index:1}
@@ -349,7 +349,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   </section>
 
   <!-- 02 ШЕФ: регалии печатаются штампами (фон — кухня) -->
-  <section class="stamps" data-scene="stamps" id="stamps" data-bg="1">
+  <section class="stamps" data-scene="stamps" id="stamps" data-bg="1" data-bg-pos="34% 42%">
     <div class="strip" id="stripChef"><i>ЖАН АШНЕР · ДВЕ ЗВЕЗДЫ MICHELIN · ЖАН АШНЕР · ДВЕ ЗВЕЗДЫ MICHELIN · </i></div>
     <div class="wrap">
       <div class="st-list" id="stList">
@@ -396,7 +396,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   </section>
 
   <!-- 04 ГАСТРОУЖИНЫ: горизонтальная протяжка (фон — подача) -->
-  <section class="dinner" data-scene="dinner" id="dinner" data-bg="2">
+  <section class="dinner" data-scene="dinner" id="dinner" data-bg="2" data-bg-pos="46% 62%">
     <div class="head">
       <div class="eyebrow reveal">Формат событий</div>
       <h2 class="reveal" style="--d:.08s">Гастроужины</h2>
@@ -564,7 +564,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   </section>
 
   <!-- 09 ИТОГ: полное резюме предложения (фон — зал) -->
-  <section class="finale" data-scene="finale" data-bg="3">
+  <section class="finale" data-scene="finale" data-bg="3" data-bg-pos="52% 32%">
     <div class="fin-inner">
       <div class="eyebrow reveal">Итог</div>
       <h2 class="reveal" style="--d:.08s">Резюме предложения</h2>
@@ -709,6 +709,9 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   document.querySelectorAll('[data-bg]').forEach(function(sec){
     var key = sec.getAttribute('data-bg');
     var img = new Image();
+    /* фокусная точка кадра: что должно остаться в кадре при обрезке на телефоне */
+    var pos = sec.getAttribute('data-bg-pos');
+    if(pos) img.style.objectPosition = pos;
     img.onload = function(){
       var holder = document.createElement('div');
       holder.className = 'scene-bg';
