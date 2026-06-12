@@ -61,13 +61,13 @@ h1,h2,h3{font-family:var(--font-display);font-weight:400;line-height:1.04;letter
 /* монтажная склейка — провал в чёрное между главами */
 .cutfx{position:fixed;inset:0;background:#000;z-index:35;pointer-events:none;opacity:0}
 
-/* ============ киносчётчик-заставка ============ */
-.leader{position:fixed;inset:0;background:var(--noir);z-index:90;display:grid;place-items:center;transition:opacity .9s var(--ease),visibility .9s}
-.leader-ring{position:relative;width:150px;height:150px;border:1px solid var(--hair);border-radius:50%;display:grid;place-items:center}
-.leader-ring::before{content:"";position:absolute;inset:-18px;border:1px solid rgba(203,164,94,.1);border-radius:50%}
-.leader-num{font-family:var(--font-display);font-size:64px;color:var(--bone)}
-.leader-sweep{position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(203,164,94,.16) 0deg,transparent 0deg)}
-.leader-cap{position:absolute;bottom:18vh;left:0;right:0;text-align:center;font-family:var(--font-mono);font-size:10px;letter-spacing:.5em;text-indent:.5em;color:var(--gilt);text-transform:uppercase}
+/* золотая пыль — сайт дышит */
+.dust{position:fixed;inset:0;z-index:22;pointer-events:none}
+
+/* ============ видео-заставка (loader.mp4 с лого Park Lane) ============ */
+.leader{position:fixed;inset:0;background:#000;z-index:90;display:grid;place-items:center;transition:opacity .9s var(--ease),visibility .9s}
+.leader video{width:100%;height:100%;object-fit:contain}
+.leader-cap{position:absolute;bottom:max(18px,4svh);left:0;right:0;text-align:center;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.4em;text-indent:.4em;color:var(--ash-dim);text-transform:uppercase}
 body.loaded .leader{opacity:0;visibility:hidden}
 
 /* ============ кино-кадр (letterbox 16:9 под широкоформатное видео) ============ */
@@ -129,12 +129,11 @@ body.loaded .h-title .ch{animation:chIn 1s var(--ease) both;animation-delay:calc
 @keyframes chIn{from{opacity:0;transform:translateY(.35em) rotate(2deg)}}
 .h-x{font-family:var(--font-mono);color:var(--gilt);font-size:clamp(.72rem,2.4vw,1rem);letter-spacing:.42em;text-transform:uppercase;margin:clamp(14px,2.6svh,26px) 0}
 .h-second{font-family:var(--font-display);font-size:clamp(1.6rem,8vw,4.2rem);letter-spacing:.06em}
-.h-film{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);will-change:transform,opacity;opacity:0;pointer-events:none}
-/* контурные ленты заполняют верх и низ экрана вокруг кадра */
-.h-film .strip{left:-2vw;right:-2vw}
+/* кадр строго по центру экрана: флекс-колонна лента/кадр/лента */
+.h-film{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  gap:clamp(16px,4.5svh,46px);will-change:transform,opacity;opacity:0;pointer-events:none}
+.h-film .strip{position:static;margin:0 -2vw}
 .h-film .strip i{font-size:clamp(2.8rem,13vw,7rem);-webkit-text-stroke:1px rgba(203,164,94,.32)}
-.h-strip-t{bottom:calc(100% + 5svh)}
-.h-strip-b{top:calc(100% + 5svh)}
 /* без GSAP / с reduced-motion hero-кадр показывается статично под титулом */
 body.no-cine .h-film{position:static;opacity:1;transform:none;margin-top:34px;pointer-events:auto}
 body.no-cine .h-caption{position:static;margin-top:12px}
@@ -296,13 +295,9 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
 </head>
 <body>
 
-<!-- киносчётчик -->
+<!-- видео-заставка -->
 <div class="leader" id="leader">
-  <div class="leader-ring">
-    <div class="leader-sweep" id="leaderSweep"></div>
-    <span class="leader-num" id="leaderNum">3</span>
-  </div>
-  <div class="leader-cap">Gastro Ultima представляет</div>
+  <div class="leader-cap">Касание — пропустить</div>
 </div>
 
 <div class="bar bar-top">
@@ -317,6 +312,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
 <div class="grain"></div>
 <div class="vignette"></div>
 <div class="cutfx" id="cutfx"></div>
+<canvas class="dust" id="dust"></canvas>
 
 <main>
 
@@ -346,7 +342,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   </section>
 
   <!-- 02 ШЕФ: регалии печатаются штампами (фон — кухня) -->
-  <section class="stamps" data-scene="stamps" id="stamps" data-bg="kitchen">
+  <section class="stamps" data-scene="stamps" id="stamps" data-bg="3">
     <div class="strip" id="stripChef"><i>ЖАН АШНЕР · ДВЕ ЗВЕЗДЫ MICHELIN · ЖАН АШНЕР · ДВЕ ЗВЕЗДЫ MICHELIN · </i></div>
     <div class="wrap">
       <div class="st-list" id="stList">
@@ -393,7 +389,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   </section>
 
   <!-- 04 ГАСТРОУЖИНЫ: горизонтальная протяжка (фон — подача) -->
-  <section class="dinner" data-scene="dinner" id="dinner" data-bg="plating">
+  <section class="dinner" data-scene="dinner" id="dinner" data-bg="1">
     <div class="head">
       <div class="eyebrow reveal">Формат событий</div>
       <h2 class="reveal" style="--d:.08s">Гастроужины</h2>
@@ -561,7 +557,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   </section>
 
   <!-- 09 ИТОГ: полное резюме предложения (фон — зал) -->
-  <section class="finale" data-scene="finale" data-bg="finale">
+  <section class="finale" data-scene="finale" data-bg="2">
     <div class="fin-inner">
       <div class="eyebrow reveal">Итог</div>
       <h2 class="reveal" style="--d:.08s">Резюме предложения</h2>
@@ -611,24 +607,27 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   var coarse = window.matchMedia('(pointer: coarse)').matches;
   var hasGsap = !!(window.gsap && window.ScrollTrigger);
 
-  /* ---------- киносчётчик 3-2-1 ---------- */
+  /* ---------- видео-заставка: сайт начинается с лоадера ---------- */
   (function(){
-    var num = document.getElementById('leaderNum');
-    var sweep = document.getElementById('leaderSweep');
-    if(rm){ document.body.classList.add('loaded'); return; }
-    var t0 = null, dur = 1800;
-    function tick(ts){
-      if(!t0) t0 = ts;
-      var p = Math.min((ts - t0)/dur, 1);
-      var n = 3 - Math.floor(p * 3);
-      num.textContent = Math.max(n, 1);
-      var deg = (p * 3 % 1) * 360;
-      sweep.style.background = 'conic-gradient(rgba(203,164,94,.16) ' + deg + 'deg, transparent ' + deg + 'deg)';
-      if(p < 1) requestAnimationFrame(tick);
-      else document.body.classList.add('loaded');
+    var leader = document.getElementById('leader');
+    var done = false;
+    function finish(){
+      if(done) return;
+      done = true;
+      document.body.classList.add('loaded');
+      setTimeout(function(){ if(leader.parentNode) leader.parentNode.removeChild(leader); }, 1000);
     }
-    requestAnimationFrame(tick);
-    setTimeout(function(){ document.body.classList.add('loaded'); }, 3500); // страховка
+    if(rm){ finish(); return; }
+    var v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'auto';
+    v.setAttribute('muted',''); v.setAttribute('playsinline','');
+    v.addEventListener('ended', finish);
+    v.addEventListener('error', finish);
+    v.addEventListener('loadeddata', function(){ v.play().catch(finish); });
+    leader.insertBefore(v, leader.firstChild);
+    v.src = 'assets/loader.mp4';
+    leader.addEventListener('click', finish);
+    setTimeout(finish, 9000); /* страховка, если видео не загрузится */
   })();
 
   /* ---------- кино-кадры ----------
@@ -721,6 +720,50 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     img.src = 'assets/' + key + '.jpg';
   });
 
+  /* ---------- золотая пыль: медленно всплывающие мерцающие частицы ---------- */
+  (function(){
+    if(rm) return;
+    var c = document.getElementById('dust');
+    var ctx = c.getContext('2d');
+    if(!ctx) return;
+    var DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+    var W, H;
+    function size(){ W = c.width = window.innerWidth * DPR; H = c.height = window.innerHeight * DPR; }
+    size();
+    window.addEventListener('resize', size);
+    var N = coarse ? 34 : 60;
+    function mk(fresh){
+      return {
+        x: Math.random() * W,
+        y: fresh ? H + Math.random() * 30 * DPR : Math.random() * H,
+        r: (Math.random() * 1.5 + .5) * DPR,
+        s: (Math.random() * .3 + .1) * DPR,
+        w: Math.random() * 6.28,
+        ws: Math.random() * .03 + .008,
+        a: Math.random() * .4 + .12
+      };
+    }
+    var ps = [];
+    for(var i = 0; i < N; i++) ps.push(mk(false));
+    function tick(){
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#CBA45E';
+      for(var i = 0; i < N; i++){
+        var p = ps[i];
+        p.y -= p.s;
+        p.w += p.ws;
+        p.x += Math.sin(p.w) * .2 * DPR;
+        if(p.y < -10) ps[i] = p = mk(true);
+        ctx.globalAlpha = p.a * (.55 + .45 * Math.sin(p.w * 2));
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, 6.283);
+        ctx.fill();
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  })();
+
   /* таймкоды на кадрах */
   (function(){
     var tcs = document.querySelectorAll('.ftc');
@@ -806,32 +849,33 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     .to(cut, { opacity: 0, ease: 'power2.out', duration: .5 });
   }
 
-  /* --- HERO: титул пролетает сквозь камеру, дальше скролл прокручивает видео ---
-     Прокрутка = таймлайн ролика: progress .42–.99 пина мапится на currentTime.
-     Видео никогда не play() — каждый кадр ставит скролл, поэтому оно
-     не может «начаться слишком рано» и всегда видно целиком. */
-  var SCRUB_FROM = .42, SCRUB_TO = .99;
+  /* --- HERO: титул пролетает сквозь камеру, открывается кадр —
+     видео проигрывается само, когда кадр открылся; при выходе — пауза,
+     при возврате наверх — сначала. --- */
   var heroTl = gsap.timeline({
     scrollTrigger: {
-      trigger: '#hero', start: 'top top', end: '+=320%', scrub: true, pin: true, anticipatePin: 1,
+      trigger: '#hero', start: 'top top', end: '+=180%', scrub: true, pin: true, anticipatePin: 1,
       onUpdate: function(self){
-        if(!heroVideo || !heroVideo.duration) return;
-        var p = (self.progress - SCRUB_FROM) / (SCRUB_TO - SCRUB_FROM);
-        p = Math.max(0, Math.min(1, p));
-        var t = p * Math.max(heroVideo.duration - .05, 0);
-        if(Math.abs(heroVideo.currentTime - t) > .034) heroVideo.currentTime = t;
+        if(!heroVideo) return;
+        if(self.progress > .58 && self.progress < .995){ playOnce(heroVideo); }
+        else {
+          heroVideo.pause();
+          if(self.progress < .4 && heroVideo.currentTime > 0){
+            try{ heroVideo.currentTime = 0; }catch(e){}
+          }
+        }
       }
     }
   });
   heroTl
-    .to('#hPresents', { opacity: 0, y: -20, ease: 'none', duration: .06 }, 0)
-    .to('#hTitle', { scale: 1.06, ease: 'none', duration: .16 }, 0)
-    .to('#hTitle', { scale: 4.6, opacity: 0, ease: 'power1.in', duration: .18 }, .16)
-    .to('.scrollcue', { opacity: 0, duration: .05 }, .03)
-    .fromTo('#hFilm', { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, ease: 'none', duration: .1 }, .32)
-    .fromTo('#hStripT i', { xPercent: 0 }, { xPercent: -35, ease: 'none', duration: .66 }, .32)
-    .fromTo('#hStripB i', { xPercent: -35 }, { xPercent: 0, ease: 'none', duration: .66 }, .32)
-    .to({}, { duration: .58 }); /* удержание кадра — здесь скролл мотает видео */
+    .to('#hPresents', { opacity: 0, y: -20, ease: 'none', duration: .08 }, 0)
+    .to('#hTitle', { scale: 1.06, ease: 'none', duration: .22 }, 0)
+    .to('#hTitle', { scale: 4.6, opacity: 0, ease: 'power1.in', duration: .26 }, .22)
+    .to('.scrollcue', { opacity: 0, duration: .06 }, .04)
+    .fromTo('#hFilm', { yPercent: 22, opacity: 0 }, { yPercent: 0, opacity: 1, ease: 'none', duration: .16 }, .44)
+    .fromTo('#hStripT i', { xPercent: 0 }, { xPercent: -30, ease: 'none', duration: .4 }, .44)
+    .fromTo('#hStripB i', { xPercent: -30 }, { xPercent: 0, ease: 'none', duration: .4 }, .44)
+    .to({}, { duration: .4 }); /* кадр держится по центру, видео играет */
   addCut('#hero');
 
   /* --- ШТАМПЫ: регалии печатаются одна за другой --- */
