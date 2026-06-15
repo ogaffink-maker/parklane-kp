@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="Коммерческое предложение для ресторанного комплекса Park Lane в Алматы от Gastro Ultima. Постановка кухни от бренд-шефа с двумя звездами Мишлен Жана Ашнера и ресторанный консалтинг полного цикла от Жантуре Андамасова.">
 <title>Park Lane × Gastro Ultima — Коммерческое предложение</title>
+<link rel="preload" href="assets/t5.mp4" as="video" type="video/mp4" media="(max-width: 880px)">
+<link rel="preload" href="assets/loader1.mp4" as="video" type="video/mp4" media="(min-width: 881px)">
+<link rel="preload" href="assets/hero.mp4" as="video" type="video/mp4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Prata&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
@@ -847,63 +850,63 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     ready.bgTotal++;
     var key = sec.getAttribute('data-bg');
     var videoKey = sec.getAttribute('data-bg-video');
+    var pos = sec.getAttribute('data-bg-pos');
+    
+    var holder = document.createElement('div');
+    holder.className = 'scene-bg';
+    sec.insertBefore(holder, sec.firstChild);
+    
     var img = new Image();
     img.alt = "";
-    /* фокусная точка кадра: что должно остаться в кадре при обрезке на телефоне */
-    var pos = sec.getAttribute('data-bg-pos');
     if(pos) img.style.objectPosition = pos;
     img.onload = function(){
-      var holder = document.createElement('div');
-      holder.className = 'scene-bg';
       holder.appendChild(img);
-      sec.insertBefore(holder, sec.firstChild);
       ready.bgDone++;
-      
       if(hasGsap && !rm){
         gsap.fromTo(img, { yPercent: -4 }, {
           yPercent: 4, ease: 'none',
           scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: true }
         });
       }
-
-      if(videoKey){
-        var v = document.createElement('video');
-        v.muted = true; v.playsInline = true; v.loop = true; v.autoplay = true;
-        v.setAttribute('muted',''); v.setAttribute('playsinline',''); v.setAttribute('loop',''); v.setAttribute('autoplay','');
-        v.style.position = 'absolute';
-        v.style.left = '0'; v.style.top = '0';
-        v.style.width = '100%'; v.style.height = '100%';
-        v.style.objectFit = 'cover';
-        v.style.opacity = '0';
-        v.style.transition = 'opacity 1s ease';
-        if(pos) v.style.objectPosition = pos;
-        
-        v.addEventListener('loadedmetadata', function(){
-          v.playbackRate = 0.55; // Замедление воспроизведения (slow motion)
-        });
-        
-        v.addEventListener('canplay', function(){
-          holder.appendChild(v);
-          v.style.opacity = '0.9'; // Полупрозрачность для смешивания с постером
-          
-          // Оптимизация: воспроизведение только при видимости на экране
-          var videoIO = new IntersectionObserver(function(entries){
-            entries.forEach(function(e){
-              if(e.isIntersecting){
-                v.play().catch(function(){});
-              } else {
-                v.pause();
-              }
-            });
-          }, { threshold: 0.05 });
-          videoIO.observe(sec);
-        }, { once: true });
-        
-        v.src = 'assets/' + videoKey + '.mp4';
-      }
     };
     img.onerror = function(){ ready.bgDone++; };
     img.src = 'assets/' + key + '.jpg';
+
+    if(videoKey){
+      var v = document.createElement('video');
+      v.muted = true; v.playsInline = true; v.loop = true; v.autoplay = true;
+      v.setAttribute('muted',''); v.setAttribute('playsinline',''); v.setAttribute('loop',''); v.setAttribute('autoplay','');
+      v.style.position = 'absolute';
+      v.style.left = '0'; v.style.top = '0';
+      v.style.width = '100%'; v.style.height = '100%';
+      v.style.objectFit = 'cover';
+      v.style.opacity = '0';
+      v.style.transition = 'opacity 1s ease';
+      if(pos) v.style.objectPosition = pos;
+      
+      v.addEventListener('loadedmetadata', function(){
+        v.playbackRate = 0.55; // Замедление воспроизведения (slow motion)
+      });
+      
+      v.addEventListener('canplay', function(){
+        holder.appendChild(v);
+        v.style.opacity = '0.9'; // Полупрозрачность для смешивания с постером
+        
+        // Оптимизация: воспроизведение только при видимости на экране
+        var videoIO = new IntersectionObserver(function(entries){
+          entries.forEach(function(e){
+            if(e.isIntersecting){
+              v.play().catch(function(){});
+            } else {
+              v.pause();
+            }
+          });
+        }, { threshold: 0.05 });
+        videoIO.observe(sec);
+      }, { once: true });
+      
+      v.src = 'assets/' + videoKey + '.mp4';
+    }
   });
 
   /* ---------- золотая пыль: медленно всплывающие мерцающие частицы + интерактивный отклик ---------- */
