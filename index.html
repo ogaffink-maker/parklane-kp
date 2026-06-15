@@ -7,7 +7,7 @@
 <title>Park Lane × Gastro Ultima — Коммерческое предложение</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Prata&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Prata&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
 /* ============ base (mobile-first) ============ */
 :root{
@@ -157,6 +157,34 @@ body.no-cine .hero{justify-content:flex-start;padding-top:calc(var(--bar-h) + 10
 .st .k{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.3em;color:var(--gilt);text-transform:uppercase;display:block;margin-bottom:4px}
 .st .t{font-family:var(--font-display);font-size:clamp(1.75rem,8.6vw,4.6rem);line-height:1.06;color:var(--bone)}
 .st .t em{font-style:normal;color:var(--gilt)}
+
+/* Премиальные стили для англоязычного блока с башней */
+#stamps .st .k {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(12px, 1.4vw, 16px);
+  font-style: italic;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.12em;
+  color: var(--gilt-soft);
+}
+#stamps .st .t {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2rem, 9vw, 5.2rem);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  line-height: 1.0;
+}
+#stamps .st .t em {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+}
+#stripChef i {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+}
 
 /* ============ 03 ШЕФ: досье ============ */
 .chef .wrap{display:flex;flex-direction:column;gap:30px}
@@ -355,17 +383,17 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     <div class="scrollcue">Листайте<i></i></div>
   </section>
 
-  <!-- 02 ШЕФ: регалии печатаются штампами (фон — кухня) -->
+  <!-- 02 ШЕФ: регалии печатаются штампами (фон — Эйфелева башня) -->
   <section class="stamps" data-scene="stamps" id="stamps" data-bg="1" data-bg-pos="34% 42%">
-    <div class="strip" id="stripChef"><i>ЖАН АШНЕР · ДВЕ ЗВЕЗДЫ MICHELIN · ЖАН АШНЕР · ДВЕ ЗВЕЗДЫ MICHELIN · </i></div>
+    <div class="strip" id="stripChef"><i>JEAN ASHNER · TWO MICHELIN STARS · JEAN ASHNER · TWO MICHELIN STARS · </i></div>
     <div class="wrap">
       <div class="st-list" id="stList">
-        <div class="st"><span class="k">Бренд-шеф проекта</span><span class="t">Жан <em>Ашнер</em></span></div>
-        <div class="st"><span class="k">Брюссель · La Maison de Boeuf · 2003</span><span class="t"><em>★★</em> Michelin</span></div>
-        <div class="st"><span class="k">Школа</span><span class="t">Le Cordon Bleu · Париж</span></div>
-        <div class="st"><span class="k">4 континента</span><span class="t">Сидней · Абу-Даби · Стамбул · Рио · Лондон</span></div>
-        <div class="st"><span class="k">Бренд-шеф кулинарного обслуживания</span><span class="t">Олимпиада Сочи-2014</span></div>
-        <div class="st"><span class="k">с 2023 · SALTER'S и Emiliya</span><span class="t">Sheraton Astana</span></div>
+        <div class="st"><span class="k">Brand Chef of the Project</span><span class="t">Jean <em>Ashner</em></span></div>
+        <div class="st"><span class="k">Brussels · La Maison de Boeuf · 2003</span><span class="t"><em>★★</em> Michelin Stars</span></div>
+        <div class="st"><span class="k">Alma Mater</span><span class="t">Le Cordon Bleu · Paris</span></div>
+        <div class="st"><span class="k">4 Continents</span><span class="t">Sydney · Abu Dhabi · Istanbul · Rio · London</span></div>
+        <div class="st"><span class="k">Executive Culinary Director</span><span class="t">Sochi 2014 Olympic Games</span></div>
+        <div class="st"><span class="k">Since 2023 · SALTER'S & Emiliya</span><span class="t">Sheraton Astana</span></div>
       </div>
     </div>
   </section>
