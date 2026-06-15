@@ -436,8 +436,8 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     </div>
   </section>
 
-  <!-- 04 ГАСТРОУЖИНЫ: горизонтальная протяжка (фон — подача) -->
-  <section class="dinner" data-scene="dinner" id="dinner" data-bg="2" data-bg-pos="46% 62%">
+  <!-- 04 ГАСТРОУЖИНЫ: горизонтальная протяжка (фон — видео t2) -->
+  <section class="dinner" data-scene="dinner" id="dinner" data-bg="2" data-bg-video="t2" data-bg-pos="46% 62%">
     <div class="head">
       <div class="eyebrow reveal">Формат событий</div>
       <h2 class="reveal" style="--d:.08s">Гастроужины</h2>
@@ -821,6 +821,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   document.querySelectorAll('[data-bg]').forEach(function(sec){
     ready.bgTotal++;
     var key = sec.getAttribute('data-bg');
+    var videoKey = sec.getAttribute('data-bg-video');
     var img = new Image();
     img.alt = "";
     /* фокусная точка кадра: что должно остаться в кадре при обрезке на телефоне */
@@ -832,11 +833,48 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
       holder.appendChild(img);
       sec.insertBefore(holder, sec.firstChild);
       ready.bgDone++;
+      
       if(hasGsap && !rm){
         gsap.fromTo(img, { yPercent: -4 }, {
           yPercent: 4, ease: 'none',
           scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: true }
         });
+      }
+
+      if(videoKey){
+        var v = document.createElement('video');
+        v.muted = true; v.playsInline = true; v.loop = true; v.autoplay = true;
+        v.setAttribute('muted',''); v.setAttribute('playsinline',''); v.setAttribute('loop',''); v.setAttribute('autoplay','');
+        v.style.position = 'absolute';
+        v.style.left = '0'; v.style.top = '0';
+        v.style.width = '100%'; v.style.height = '100%';
+        v.style.objectFit = 'cover';
+        v.style.opacity = '0';
+        v.style.transition = 'opacity 1s ease';
+        if(pos) v.style.objectPosition = pos;
+        
+        v.addEventListener('loadedmetadata', function(){
+          v.playbackRate = 0.55; // Замедление воспроизведения (slow motion)
+        });
+        
+        v.addEventListener('canplay', function(){
+          holder.appendChild(v);
+          v.style.opacity = '0.9'; // Полупрозрачность для смешивания с постером
+          
+          // Оптимизация: воспроизведение только при видимости на экране
+          var videoIO = new IntersectionObserver(function(entries){
+            entries.forEach(function(e){
+              if(e.isIntersecting){
+                v.play().catch(function(){});
+              } else {
+                v.pause();
+              }
+            });
+          }, { threshold: 0.05 });
+          videoIO.observe(sec);
+        }, { once: true });
+        
+        v.src = 'assets/' + videoKey + '.mp4';
       }
     };
     img.onerror = function(){ ready.bgDone++; };
