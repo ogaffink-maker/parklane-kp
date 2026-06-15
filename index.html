@@ -788,7 +788,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     img.src = 'assets/' + key + '.jpg';
   });
 
-  /* ---------- золотая пыль: медленно всплывающие мерцающие частицы ---------- */
+  /* ---------- золотая пыль: медленно всплывающие мерцающие частицы + интерактивный отклик ---------- */
   (function(){
     if(rm) return;
     var c = document.getElementById('dust');
@@ -808,21 +808,82 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
         s: (Math.random() * .3 + .1) * DPR,
         w: Math.random() * 6.28,
         ws: Math.random() * .03 + .008,
-        a: Math.random() * .4 + .12
+        a: Math.random() * .4 + .12,
+        dynamic: false
       };
     }
     var ps = [];
     for(var i = 0; i < N; i++) ps.push(mk(false));
+
+    function spawn(clientX, clientY, count) {
+      var cx = clientX * DPR;
+      var cy = clientY * DPR;
+      for (var i = 0; i < count; i++) {
+        if (ps.length > 300) break; // limit to avoid memory leaks
+        ps.push({
+          x: cx,
+          y: cy,
+          vx: (Math.random() - 0.5) * 3.5 * DPR,
+          vy: (Math.random() - 0.5) * 3.5 * DPR - 0.8 * DPR,
+          r: (Math.random() * 2 + 0.8) * DPR,
+          a: Math.random() * 0.7 + 0.3,
+          decay: Math.random() * 0.02 + 0.012,
+          dynamic: true
+        });
+      }
+    }
+
+    window.addEventListener('mousemove', function(e){
+      if(Math.random() < 0.25) {
+        spawn(e.clientX, e.clientY, 1);
+      }
+    }, { passive: true });
+
+    window.addEventListener('click', function(e){
+      spawn(e.clientX, e.clientY, 12);
+    }, { passive: true });
+
+    window.addEventListener('touchmove', function(e){
+      if(e.touches && e.touches.length) {
+        var t = e.touches[0];
+        if(Math.random() < 0.3) {
+          spawn(t.clientX, t.clientY, 1);
+        }
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchstart', function(e){
+      if(e.touches && e.touches.length) {
+        var t = e.touches[0];
+        spawn(t.clientX, t.clientY, 4);
+      }
+    }, { passive: true });
+
     function tick(){
       ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = '#CBA45E';
-      for(var i = 0; i < N; i++){
+      for(var i = ps.length - 1; i >= 0; i--){
         var p = ps[i];
-        p.y -= p.s;
-        p.w += p.ws;
-        p.x += Math.sin(p.w) * .2 * DPR;
-        if(p.y < -10) ps[i] = p = mk(true);
-        ctx.globalAlpha = p.a * (.55 + .45 * Math.sin(p.w * 2));
+        if (p.dynamic) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.96;
+          p.vy *= 0.96;
+          p.a -= p.decay;
+          if (p.a <= 0) {
+            ps.splice(i, 1);
+            continue;
+          }
+          ctx.globalAlpha = p.a;
+        } else {
+          p.y -= p.s;
+          p.w += p.ws;
+          p.x += Math.sin(p.w) * .2 * DPR;
+          if(p.y < -10) {
+            ps[i] = p = mk(true);
+          }
+          ctx.globalAlpha = p.a * (.55 + .45 * Math.sin(p.w * 2));
+        }
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, 6.283);
         ctx.fill();
