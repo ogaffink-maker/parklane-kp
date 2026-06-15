@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Коммерческое предложение для ресторанного комплекса Park Lane в Алматы от Gastro Ultima. Постановка кухни от бренд-шефа с двумя звездами Мишлен Жана Ашнера и ресторанный консалтинг полного цикла от Жантуре Андамасова.">
 <title>Park Lane × Gastro Ultima — Коммерческое предложение</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -265,6 +266,12 @@ body.no-cine .hero{justify-content:flex-start;padding-top:calc(var(--bar-h) + 10
   text-transform:uppercase;color:var(--noir);background:var(--gilt);padding:18px 34px;border:1px solid var(--gilt);
   text-decoration:none;transition:background .4s var(--ease),color .4s var(--ease)}
 .cta:hover{background:transparent;color:var(--gilt)}
+.cta-secondary{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:10px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--gilt);border:1px solid var(--hair);background:rgba(203,164,94,0.05);
+  padding:12px 20px;text-decoration:none;transition:background .4s var(--ease),border-color .4s var(--ease)}
+.cta-secondary:hover{background:rgba(203,164,94,0.15);border-color:var(--gilt)}
+.cta-secondary svg{transition:transform .3s var(--ease)}
+.cta-secondary:hover svg{transform:translateY(2px)}
 .contacts{margin-top:clamp(28px,5svh,56px);display:flex;flex-wrap:wrap;gap:clamp(18px,4vw,40px);justify-content:center}
 .contacts .c{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash-dim)}
 .contacts .c a{display:block;color:var(--bone);font-size:.95rem;letter-spacing:.04em;margin-top:6px;font-weight:500;text-transform:none;text-decoration:none}
@@ -364,7 +371,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   </section>
 
   <!-- 03 ШЕФ: досье и условия -->
-  <section class="chef" data-scene="chef">
+  <section class="chef" data-scene="chef" id="chef">
     <div class="wrap">
       <div class="portrait" id="portrait">
         <span class="corner tl"></span><span class="corner br"></span>
@@ -376,6 +383,12 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
         <div class="role reveal" style="--d:.14s">Jean Ashner · Executive Chef</div>
         <p class="reveal" style="--d:.2s">Готовил для королей Бельгии и Нидерландов и князя Монако, курировал банкет на свадьбе принца Марокко. Мечтает привести первую звезду Мишлен в Казахстан.</p>
         <p class="reveal" style="--d:.26s">Для Park Lane: первый месяц — постановка кухни всего комплекса и гастроужин-открытие. Далее — кураторство в роли бренд-шефа, ~1 неделя в Алматы ежемесячно.</p>
+        <div class="reveal" style="--d:.28s; margin-bottom: 24px;">
+          <a class="cta-secondary" id="downloadDossierLink" href="assets/dossier-jean-achner.pdf" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Скачать портфолио шефа (PDF)
+          </a>
+        </div>
         <div class="spec reveal" style="--d:.32s">
           <div class="spec-row">
             <div class="k">Старт · Месяц 1<small>Постановка кухни + гастроужин. Жильё включено.</small></div>
@@ -591,10 +604,16 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
         </div>
       </div>
       <p class="sub reveal" style="--d:.24s">Для старта достаточно подтверждения по телефону или почте — фиксируем дату приезда шефа, и месяц постановки начинается.</p>
-      <a class="cta reveal" style="--d:.3s" href="tel:+77020230000">Подтвердить запуск →</a>
-      <div class="contacts reveal" style="--d:.36s">
-        <div class="c">Телефон<a href="tel:+77020230000">8 702 023 00 00</a></div>
-        <div class="c">Почта<a href="mailto:andamassov@yahoo.com">andamassov@yahoo.com</a></div>
+      <a class="cta reveal" id="ctaLaunchBtn" style="--d:.3s" href="tel:+77020230000">Подтвердить запуск →</a>
+      <div class="reveal" style="--d:.34s; margin-top: 20px;">
+        <a class="cta-secondary" id="downloadProfileLink" href="assets/profile-zhanture-andamasov.pdf" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Скачать профиль эксперта (PDF)
+        </a>
+      </div>
+      <div class="contacts reveal" style="--d:.38s">
+        <div class="c">Телефон<a id="contactPhone" href="tel:+77020230000">8 702 023 00 00</a></div>
+        <div class="c">Почта<a id="contactEmail" href="mailto:andamassov@yahoo.com">andamassov@yahoo.com</a></div>
       </div>
     </div>
   </section>
@@ -706,6 +725,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
       if(img.naturalWidth && img.naturalHeight){
         screen.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
       }
+      img.alt = "Кадр презентации " + key;
       screen.appendChild(img);
       film.classList.add('has-media');
       film.classList.add('is-photo');
@@ -735,6 +755,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     var img = new Image();
     img.onload = function(){
       var p = document.getElementById('portrait');
+      img.alt = "Жан Ашнер - Бренд-шеф проекта";
       p.insertBefore(img, p.firstChild);
       p.classList.add('has-photo');
       ready.bgDone++;
@@ -749,6 +770,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     ready.bgTotal++;
     var key = sec.getAttribute('data-bg');
     var img = new Image();
+    img.alt = "";
     /* фокусная точка кадра: что должно остаться в кадре при обрезке на телефоне */
     var pos = sec.getAttribute('data-bg-pos');
     if(pos) img.style.objectPosition = pos;

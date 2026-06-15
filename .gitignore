@@ -1,4 +1,5 @@
-﻿*.pdf
+*.pdf
+!assets/*.pdf
 
 assets/loader.mp4
 assets/hero-original.mp4
