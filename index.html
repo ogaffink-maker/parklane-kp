@@ -696,6 +696,9 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     var v = document.createElement('video');
     v.muted = true; v.playsInline = true; v.preload = 'auto';
     v.setAttribute('muted',''); v.setAttribute('playsinline','');
+    if(key === 'hero'){
+      v.poster = 'assets/hero-poster.jpg';
+    }
     v.addEventListener('loadedmetadata', function(){
       if(v.videoWidth && v.videoHeight){
         screen.style.aspectRatio = v.videoWidth + ' / ' + v.videoHeight;
