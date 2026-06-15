@@ -71,6 +71,7 @@ h1,h2,h3{font-family:var(--font-display);font-weight:400;line-height:1.04;letter
 
 /* золотая пыль — сайт дышит */
 .dust{position:fixed;inset:0;z-index:22;pointer-events:none}
+.smoke{position:fixed;inset:0;z-index:21;pointer-events:none}
 
 /* ============ киносчётчик-заставка ============ */
 .leader{position:fixed;inset:0;background:#151515;z-index:90;display:grid;place-items:center;transition:opacity .9s var(--ease),visibility .9s;overflow:hidden}
@@ -383,6 +384,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
 <div class="vignette"></div>
 <div class="cutfx" id="cutfx"></div>
 <canvas class="dust" id="dust"></canvas>
+<canvas class="smoke" id="smoke"></canvas>
 
 <main>
 
@@ -1312,6 +1314,188 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
         audio.pause();
       }
     });
+  })();
+
+  /* ---------- ИНТЕРАКТИВНЫЙ ТУМАН / ДЫМ ---------- */
+  (function(){
+    var c = document.getElementById('smoke');
+    if(!c) return;
+    var ctx = c.getContext('2d');
+    if(!ctx) return;
+    
+    var DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+    var W, H;
+    
+    function size(){
+      W = c.width = window.innerWidth * DPR;
+      H = c.height = window.innerHeight * DPR;
+    }
+    size();
+    window.addEventListener('resize', size);
+    
+    // Pre-render smoke texture
+    var smokeTexture = document.createElement('canvas');
+    var tSize = 250;
+    smokeTexture.width = tSize;
+    smokeTexture.height = tSize;
+    var sCtx = smokeTexture.getContext('2d');
+    var grad = sCtx.createRadialGradient(tSize/2, tSize/2, 0, tSize/2, tSize/2, tSize/2);
+    grad.addColorStop(0, 'rgba(203, 164, 94, 0.12)'); // var(--gilt) tint
+    grad.addColorStop(0.3, 'rgba(110, 104, 95, 0.06)'); // var(--ash-dim) tint
+    grad.addColorStop(0.7, 'rgba(10, 10, 12, 0.02)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    sCtx.fillStyle = grad;
+    sCtx.fillRect(0, 0, tSize, tSize);
+    
+    var N = window.innerWidth < 880 ? 20 : 38; // fewer particles on mobile
+    var ps = [];
+    
+    function createParticle(initY) {
+      var r = (Math.random() * 120 + 130) * DPR; // radius 130px - 250px
+      return {
+        x: Math.random() * W,
+        y: initY ? Math.random() * H : H + r,
+        vx: (Math.random() - 0.5) * 0.4 * DPR,
+        vy: -(Math.random() * 0.3 + 0.1) * DPR, // slowly floats upwards
+        r: r,
+        alpha: Math.random() * 0.3 + 0.15, // base opacity
+        rotation: Math.random() * 6.28,
+        spin: (Math.random() - 0.5) * 0.003
+      };
+    }
+    
+    for(var i = 0; i < N; i++) {
+      ps.push(createParticle(true));
+    }
+    
+    // Track cursor/touch
+    var m = { x: -1000, y: -1000, vx: 0, vy: 0, lastX: 0, lastY: 0, active: false };
+    
+    function pointerMove(x, y) {
+      var mx = x * DPR;
+      var my = y * DPR;
+      if (m.active) {
+        m.vx = mx - m.lastX;
+        m.vy = my - m.lastY;
+      } else {
+        m.vx = 0;
+        m.vy = 0;
+        m.active = true;
+      }
+      m.x = mx;
+      m.y = my;
+      m.lastX = mx;
+      m.lastY = my;
+    }
+    
+    window.addEventListener('mousemove', function(e){
+      pointerMove(e.clientX, e.clientY);
+    }, { passive: true });
+    
+    window.addEventListener('touchmove', function(e){
+      if(e.touches.length > 0) {
+        pointerMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+    
+    // Clear pointer speed on release/stop
+    var stopTimeout;
+    function clearPointerSpeed() {
+      m.vx = 0; m.vy = 0;
+      stopTimeout = setTimeout(function(){ m.active = false; }, 100);
+    }
+    window.addEventListener('touchend', clearPointerSpeed, { passive: true });
+    
+    // Scroll tracking for vertical wind force
+    var lastScrollY = window.scrollY;
+    var scrollSpeed = 0;
+    
+    window.addEventListener('scroll', function(){
+      var sy = window.scrollY;
+      scrollSpeed = (sy - lastScrollY) * DPR;
+      lastScrollY = sy;
+    }, { passive: true });
+    
+    function tick(){
+      ctx.clearRect(0, 0, W, H);
+      
+      // Decelerate scroll speed impact
+      scrollSpeed *= 0.92;
+      
+      // Decay cursor speed impact
+      m.vx *= 0.95;
+      m.vy *= 0.95;
+      
+      for(var i = 0; i < ps.length; i++) {
+        var p = ps[i];
+        
+        // Apply scroll force (pushes particles vertically with scroll)
+        p.vy -= scrollSpeed * 0.03;
+        
+        // Cursor/Finger interaction (wind + dispersion)
+        if (m.active) {
+          var dx = p.x - m.x;
+          var dy = p.y - m.y;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          var minDist = p.r * 1.2;
+          if (dist < minDist) {
+            // Force factor: stronger when closer
+            var force = (minDist - dist) / minDist;
+            
+            // Push away (dispersion)
+            var angle = Math.atan2(dy, dx);
+            var push = force * 2.2 * DPR;
+            p.vx += Math.cos(angle) * push;
+            p.vy += Math.sin(angle) * push;
+            
+            // Wind drag (cursor velocity transferred to smoke)
+            p.vx += m.vx * force * 0.12;
+            p.vy += m.vy * force * 0.12;
+            
+            // Temporarily lower opacity when dispersed to simulate thinning out
+            p.alpha = Math.max(p.alpha - force * 0.05, 0.08);
+          }
+        }
+        
+        // Recover opacity back to base
+        p.alpha += (0.25 - p.alpha) * 0.02;
+        
+        // Update physics
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rotation += p.spin;
+        
+        // Friction & slow upward drift
+        p.vx *= 0.96;
+        p.vy = (p.vy - (-0.15 * DPR)) * 0.05 + p.vy * 0.91; // floats back to normal upward speed
+        
+        // Boundaries wrap
+        var margin = p.r;
+        if (p.y < -margin) {
+          // Reset to bottom
+          ps[i] = createParticle(false);
+          ps[i].y = H + margin;
+        } else if (p.x < -margin) {
+          p.x = W + margin;
+        } else if (p.x > W + margin) {
+          p.x = -margin;
+        } else if (p.y > H + margin) {
+          p.y = -margin;
+        }
+        
+        // Draw pre-rendered smoke texture
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.globalAlpha = p.alpha;
+        ctx.drawImage(smokeTexture, -p.r, -p.r, p.r*2, p.r*2);
+        ctx.restore();
+      }
+      
+      requestAnimationFrame(tick);
+    }
+    
+    requestAnimationFrame(tick);
   })();
 })();
 </script>
