@@ -81,6 +81,8 @@ h1,h2,h3{font-family:var(--font-display);font-weight:400;line-height:1.04;letter
   .leader-video:not(.is-mobile-video) { transform: scale(1.35); }
 }
 .leader-cap{position:absolute;bottom:18vh;left:0;right:0;text-align:center;font-family:var(--font-mono);font-size:10px;letter-spacing:.5em;text-indent:.5em;color:var(--gilt);text-transform:uppercase;z-index:2}
+.enter-btn{position:absolute;bottom:8vh;left:50%;transform:translateX(-50%) translateY(15px);z-index:2;opacity:0;visibility:hidden;transition:opacity .8s var(--ease),transform .8s var(--ease),background .4s,color .4s,border-color .4s;font-family:var(--font-mono);font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--gilt);border:1px solid var(--hair);background:rgba(203,164,94,0.05);padding:16px 36px;cursor:pointer;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);white-space:nowrap}
+.enter-btn:hover{background:var(--gilt);color:var(--noir);border-color:var(--gilt)}
 body.loaded .leader{opacity:0;visibility:hidden}
 
 /* ============ кино-кадр (letterbox 16:9 под широкоформатное видео) ============ */
@@ -346,7 +348,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
 
 <!-- киносчётчик -->
 <div class="leader" id="leader">
-  <video class="leader-video" id="leaderVideo" autoplay muted playsinline preload="auto"></video>
+  <video class="leader-video" id="leaderVideo" autoplay muted playsinline loop preload="auto"></video>
   <script>
     (function(){
       var lv = document.getElementById('leaderVideo');
@@ -362,6 +364,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     })();
   </script>
   <div class="leader-cap">Gastro Ultima представляет</div>
+  <button class="enter-btn" id="enterBtn">Войти</button>
 </div>
 
 <div class="bar bar-top">
@@ -703,29 +706,51 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   (function(){
     var cap = document.querySelector('.leader-cap');
     var lv = document.getElementById('leaderVideo');
+    var enterBtn = document.getElementById('enterBtn');
     
     var fallbackTimeout = setTimeout(function(){
       ready.min = true;
     }, 4500); // Резервный таймер на случай блокировки/зависания видео
     
     if(lv) {
-      lv.addEventListener('ended', function(){
+      lv.addEventListener('playing', function(){
         clearTimeout(fallbackTimeout);
         ready.min = true;
-      });
+      }, { once: true });
+      lv.addEventListener('canplay', function(){
+        clearTimeout(fallbackTimeout);
+        ready.min = true;
+      }, { once: true });
       lv.addEventListener('error', function(){
         clearTimeout(fallbackTimeout);
         ready.min = true;
-      });
+      }, { once: true });
     } else {
       clearTimeout(fallbackTimeout);
       ready.min = true;
     }
 
+    if(enterBtn){
+      enterBtn.addEventListener('click', function(){
+        leaderFinish();
+        var audio = document.getElementById('bgMusic');
+        if(audio){
+          audio.play().catch(function(e){ console.log("Play failed on enterBtn click:", e); });
+        }
+      });
+    }
+
     var iv = setInterval(function(){
       if(allReady()){
         clearInterval(iv);
-        leaderFinish();
+        if(enterBtn){
+          if(cap) cap.textContent = 'Gastro Ultima представляет';
+          enterBtn.style.visibility = 'visible';
+          enterBtn.style.opacity = '1';
+          enterBtn.style.transform = 'translateX(-50%) translateY(0)';
+        } else {
+          leaderFinish();
+        }
       } else {
         if(ready.min && cap) {
           cap.textContent = 'Загрузка';
