@@ -71,7 +71,7 @@ h1,h2,h3{font-family:var(--font-display);font-weight:400;line-height:1.04;letter
   mask-image:linear-gradient(180deg,transparent 0%,#000 12%,#000 88%,transparent 100%);
   -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 12%,#000 88%,transparent 100%)}
 @media (max-width: 880px) {
-  .leader-video { transform: scale(1.35); }
+  .leader-video:not(.is-mobile-video) { transform: scale(1.35); }
 }
 .leader-cap{position:absolute;bottom:18vh;left:0;right:0;text-align:center;font-family:var(--font-mono);font-size:10px;letter-spacing:.5em;text-indent:.5em;color:var(--gilt);text-transform:uppercase;z-index:2}
 body.loaded .leader{opacity:0;visibility:hidden}
@@ -337,7 +337,21 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
 
 <!-- киносчётчик -->
 <div class="leader" id="leader">
-  <video class="leader-video" id="leaderVideo" src="assets/loader1.mp4" autoplay muted playsinline preload="auto"></video>
+  <video class="leader-video" id="leaderVideo" autoplay muted playsinline preload="auto"></video>
+  <script>
+    (function(){
+      var lv = document.getElementById('leaderVideo');
+      if (lv) {
+        var isMobile = window.innerWidth < 880;
+        if (isMobile) {
+          lv.src = 'assets/t5.mp4';
+          lv.classList.add('is-mobile-video');
+        } else {
+          lv.src = 'assets/loader1.mp4';
+        }
+      }
+    })();
+  </script>
   <div class="leader-cap">Gastro Ultima представляет</div>
 </div>
 
