@@ -66,12 +66,9 @@ h1,h2,h3{font-family:var(--font-display);font-weight:400;line-height:1.04;letter
 .dust{position:fixed;inset:0;z-index:22;pointer-events:none}
 
 /* ============ киносчётчик-заставка ============ */
-.leader{position:fixed;inset:0;background:var(--noir);z-index:90;display:grid;place-items:center;transition:opacity .9s var(--ease),visibility .9s}
-.leader-ring{position:relative;width:150px;height:150px;border:1px solid var(--hair);border-radius:50%;display:grid;place-items:center}
-.leader-ring::before{content:"";position:absolute;inset:-18px;border:1px solid rgba(203,164,94,.1);border-radius:50%}
-.leader-num{font-family:var(--font-display);font-size:64px;color:var(--bone)}
-.leader-sweep{position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(203,164,94,.16) 0deg,transparent 0deg)}
-.leader-cap{position:absolute;bottom:18vh;left:0;right:0;text-align:center;font-family:var(--font-mono);font-size:10px;letter-spacing:.5em;text-indent:.5em;color:var(--gilt);text-transform:uppercase}
+.leader{position:fixed;inset:0;background:#000;z-index:90;display:grid;place-items:center;transition:opacity .9s var(--ease),visibility .9s}
+.leader-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:0.75}
+.leader-cap{position:absolute;bottom:18vh;left:0;right:0;text-align:center;font-family:var(--font-mono);font-size:10px;letter-spacing:.5em;text-indent:.5em;color:var(--gilt);text-transform:uppercase;z-index:2}
 body.loaded .leader{opacity:0;visibility:hidden}
 
 /* ============ кино-кадр (letterbox 16:9 под широкоформатное видео) ============ */
@@ -335,10 +332,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
 
 <!-- киносчётчик -->
 <div class="leader" id="leader">
-  <div class="leader-ring">
-    <div class="leader-sweep" id="leaderSweep"></div>
-    <span class="leader-num" id="leaderNum">3</span>
-  </div>
+  <video class="leader-video" id="leaderVideo" src="assets/loader1.mp4" autoplay loop muted playsinline preload="auto"></video>
   <div class="leader-cap">Gastro Ultima представляет</div>
 </div>
 
@@ -662,38 +656,32 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     return ready.capped || (ready.min && ready.load && ready.video && ready.bgDone >= ready.bgTotal);
   }
 
-  /* ---------- киносчётчик 3-2-1, отпускает только готовый сайт ---------- */
+  /* ---------- киносчётчик-заставка (видео-лоадер) ---------- */
   var leaderDone = false;
   function leaderFinish(){
     if(leaderDone) return;
     leaderDone = true;
     document.body.classList.add('loaded');
+    var lv = document.getElementById('leaderVideo');
+    if(lv) {
+      try { lv.pause(); } catch(e){}
+    }
     if(window.ScrollTrigger){ try{ ScrollTrigger.refresh(); }catch(e){} }
   }
   (function(){
-    var num = document.getElementById('leaderNum');
-    var sweep = document.getElementById('leaderSweep');
     var cap = document.querySelector('.leader-cap');
-    setTimeout(function(){ ready.min = true; }, 1800);
-    if(rm){
-      ready.min = true;
-      var iv = setInterval(function(){ if(allReady()){ clearInterval(iv); leaderFinish(); } }, 200);
-      return;
-    }
-    var t0 = null, dur = 1800;
-    function tick(ts){
-      if(!t0) t0 = ts;
-      var el = ts - t0;
-      var p = Math.min(el/dur, 1);
-      var n = 3 - Math.floor(p * 3);
-      num.textContent = Math.max(n, 1);
-      var deg = (p < 1 ? (p * 3 % 1) : (el/1000 % 1)) * 360;
-      sweep.style.background = 'conic-gradient(rgba(203,164,94,.16) ' + deg + 'deg, transparent ' + deg + 'deg)';
-      if(p >= 1 && !allReady() && cap) cap.textContent = 'Загрузка';
-      if(p >= 1 && allReady()){ leaderFinish(); return; }
-      requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
+    setTimeout(function(){ ready.min = true; }, 1500); // Минимальное время заставки 1.5 сек
+    
+    var iv = setInterval(function(){
+      if(allReady()){
+        clearInterval(iv);
+        leaderFinish();
+      } else {
+        if(ready.min && cap) {
+          cap.textContent = 'Загрузка';
+        }
+      }
+    }, 100);
   })();
 
   /* ---------- кино-кадры ----------
