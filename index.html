@@ -342,7 +342,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
 </head>
 <body>
 
-<audio id="bgMusic" src="assets/s2.mp3" preload="auto" loop></audio>
+<audio id="bgMusic" src="assets/s2.mp3" autoplay preload="auto" loop></audio>
 
 <!-- киносчётчик -->
 <div class="leader" id="leader">
@@ -1218,6 +1218,16 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     
     audio.volume = 0.08; // негромко
     
+    // Sync button state based on actual audio playback state
+    audio.addEventListener('play', function(){
+      btn.textContent = 'Sound: On';
+      btn.classList.add('playing');
+    });
+    audio.addEventListener('pause', function(){
+      btn.textContent = 'Sound: Off';
+      btn.classList.remove('playing');
+    });
+    
     var interactionEvents = ['click', 'touchstart', 'scroll', 'keydown'];
     var userInteracted = false;
     
@@ -1225,8 +1235,6 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
       if (userInteracted) return;
       audio.play().then(function(){
         userInteracted = true;
-        btn.textContent = 'Sound: On';
-        btn.classList.add('playing');
         removeListeners();
       }).catch(function(err){
         console.log("Autoplay check:", err);
@@ -1235,22 +1243,28 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     
     function removeListeners() {
       interactionEvents.forEach(function(ev){
-        document.removeEventListener(ev, startPlay, { passive: true });
+        document.removeEventListener(ev, startPlay);
       });
     }
     
-    // Register interaction listeners immediately on load to play during the loader screen ("на старте")
+    // Register interaction listeners immediately on load (non-passive for iOS Safari compliance)
     interactionEvents.forEach(function(ev){
-      document.addEventListener(ev, startPlay, { passive: true });
+      document.addEventListener(ev, startPlay);
     });
     
-    // Also try playing automatically when the loader finishes in case user already interacted
+    // Attempt immediate play (if browser allows it on load)
+    audio.play().then(function(){
+      userInteracted = true;
+      removeListeners();
+    }).catch(function(err){
+      console.log("Immediate autoplay blocked, waiting for interaction:", err);
+    });
+    
+    // Also try playing automatically when the loader finishes
     window.addEventListener('leaderFinished', function(){
       if (userInteracted) return;
       audio.play().then(function(){
         userInteracted = true;
-        btn.textContent = 'Sound: On';
-        btn.classList.add('playing');
         removeListeners();
       }).catch(function(err){
         console.log("Autoplay blocked immediately on leaderFinished:", err);
@@ -1266,16 +1280,11 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
       removeListeners();
       
       if(audio.paused) {
-        audio.play().then(function(){
-          btn.textContent = 'Sound: On';
-          btn.classList.add('playing');
-        }).catch(function(err){
+        audio.play().catch(function(err){
           console.error("Play failed:", err);
         });
       } else {
         audio.pause();
-        btn.textContent = 'Sound: Off';
-        btn.classList.remove('playing');
       }
     });
   })();
