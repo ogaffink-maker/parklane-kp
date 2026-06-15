@@ -822,8 +822,9 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     }
 
     function spawn(clientX, clientY, count) {
-      var cx = clientX * DPR;
-      var cy = clientY * DPR;
+      var rect = c.getBoundingClientRect();
+      var cx = (clientX - rect.left) * (c.width / rect.width);
+      var cy = (clientY - rect.top) * (c.height / rect.height);
       for (var i = 0; i < count; i++) {
         if (ps.length > 300) break; // limit to avoid memory leaks
         ps.push({
