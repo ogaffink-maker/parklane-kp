@@ -698,6 +698,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
       try { lv.pause(); } catch(e){}
     }
     if(window.ScrollTrigger){ try{ ScrollTrigger.refresh(); }catch(e){} }
+    window.dispatchEvent(new Event('leaderFinished'));
   }
   (function(){
     var cap = document.querySelector('.leader-cap');
@@ -1219,16 +1220,17 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
     
     var interactionEvents = ['click', 'touchstart', 'scroll', 'keydown'];
     var userInteracted = false;
+    var leaderCompleted = false;
     
     function startPlay() {
-      if (userInteracted) return;
+      if (!leaderCompleted || userInteracted) return;
       audio.play().then(function(){
         userInteracted = true;
         btn.textContent = 'Sound: On';
         btn.classList.add('playing');
         removeListeners();
       }).catch(function(err){
-        // Autoplay policy prevented playback, keep listeners to retry on next interaction
+        // Keep listeners if autoplay blocked
         console.log("Autoplay check:", err);
       });
     }
@@ -1239,16 +1241,30 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
       });
     }
     
-    // Setup automatic start on interaction
-    interactionEvents.forEach(function(ev){
-      document.addEventListener(ev, startPlay, { passive: true });
+    // Listen for loader completion
+    window.addEventListener('leaderFinished', function(){
+      leaderCompleted = true;
+      
+      // Try playing immediately
+      audio.play().then(function(){
+        userInteracted = true;
+        btn.textContent = 'Sound: On';
+        btn.classList.add('playing');
+      }).catch(function(err){
+        // Autoplay policy blocked immediate play, register interaction listeners
+        console.log("Autoplay blocked immediately on leaderFinished, waiting for interaction:", err);
+        interactionEvents.forEach(function(ev){
+          document.addEventListener(ev, startPlay, { passive: true });
+        });
+      });
     });
     
     // Toggle play/pause by clicking on the button
     btn.addEventListener('click', function(e){
       e.stopPropagation();
       e.preventDefault();
-      // Once user interacts explicitly via button, remove automatic start listeners
+      
+      // Once user interacts explicitly via button, we don't auto-start anymore
       userInteracted = true;
       removeListeners();
       
