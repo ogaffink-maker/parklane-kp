@@ -332,7 +332,7 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
 
 <!-- киносчётчик -->
 <div class="leader" id="leader">
-  <video class="leader-video" id="leaderVideo" src="assets/loader1.mp4" autoplay loop muted playsinline preload="auto"></video>
+  <video class="leader-video" id="leaderVideo" src="assets/loader1.mp4" autoplay muted playsinline preload="auto"></video>
   <div class="leader-cap">Gastro Ultima представляет</div>
 </div>
 
@@ -670,8 +670,26 @@ footer .f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-
   }
   (function(){
     var cap = document.querySelector('.leader-cap');
-    setTimeout(function(){ ready.min = true; }, 1500); // Минимальное время заставки 1.5 сек
+    var lv = document.getElementById('leaderVideo');
     
+    var fallbackTimeout = setTimeout(function(){
+      ready.min = true;
+    }, 4500); // Резервный таймер на случай блокировки/зависания видео
+    
+    if(lv) {
+      lv.addEventListener('ended', function(){
+        clearTimeout(fallbackTimeout);
+        ready.min = true;
+      });
+      lv.addEventListener('error', function(){
+        clearTimeout(fallbackTimeout);
+        ready.min = true;
+      });
+    } else {
+      clearTimeout(fallbackTimeout);
+      ready.min = true;
+    }
+
     var iv = setInterval(function(){
       if(allReady()){
         clearInterval(iv);
